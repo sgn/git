@@ -691,6 +691,28 @@ fi
 fi
 
 #
+# Define ICONV_OMITS_BOM if you are on a system which
+# iconv omits bom for utf-{16,32}
+if test -z "$NO_ICONV"; then
+AC_CACHE_CHECK([whether iconv omits bom for utf-16 and utf-32],
+ [ac_cv_iconv_omits_bom],
+[
+if test "x$cross_compiling" = xyes; then
+	AC_MSG_FAILURE([please provide ac_cv_iconv_omits_bom])
+elif test `printf a | iconv -f utf-8 -t utf-16 | wc -c` = 2; then
+	ac_cv_iconv_omits_bom=yes
+else
+	ac_cv_iconv_omits_bom=no
+fi
+])
+if test "x$ac_cv_iconv_omits_bom" = xyes; then
+	ICONV_OMITS_BOM=Yes
+else
+	ICONV_OMITS_BOM=
+fi
+GIT_CONF_SUBST([ICONV_OMITS_BOM])
+fi
+#
 # Define NO_DEFLATE_BOUND if deflateBound is missing from zlib.
 
 GIT_STASH_FLAGS($ZLIB_PATH)
