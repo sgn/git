@@ -544,9 +544,15 @@ GIT_STASH_FLAGS($OPENSSLDIR)
 
 AC_CHECK_LIB([crypto], [SHA1_Init],
 [NEEDS_SSL_WITH_CRYPTO=],
-[AC_CHECK_LIB([ssl], [SHA1_Init],
- [NEEDS_SSL_WITH_CRYPTO=YesPlease NO_OPENSSL=],
- [NEEDS_SSL_WITH_CRYPTO=          NO_OPENSSL=YesPlease])])
+[
+if "x$NO_OPENSSL" = xYesPlease; then
+	AC_MSG_ERROR([Disabled OpenSSL is required for SHA1])
+else
+	AC_CHECK_LIB([ssl], [SHA1_Init],
+	[NEEDS_SSL_WITH_CRYPTO=YesPlease NO_OPENSSL=],
+	[NEEDS_SSL_WITH_CRYPTO=          NO_OPENSSL=YesPlease])
+fi
+])
 
 GIT_UNSTASH_FLAGS($OPENSSLDIR)
 
