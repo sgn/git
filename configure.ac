@@ -592,6 +592,9 @@ fi
 # git-http-push are not built, and you cannot use http:// and https://
 # transports.
 
+# Respect --without-curl
+if test "x$NO_CURL" != "xYesPlease"; then
+
 GIT_STASH_FLAGS($CURLDIR)
 
 AC_CHECK_LIB([curl], [curl_global_init],
@@ -599,8 +602,6 @@ AC_CHECK_LIB([curl], [curl_global_init],
 [NO_CURL=YesPlease])
 
 GIT_UNSTASH_FLAGS($CURLDIR)
-
-GIT_CONF_SUBST([NO_CURL])
 
 if test -z "$NO_CURL"; then
 
@@ -622,6 +623,9 @@ fi
 
 fi
 
+fi
+
+GIT_CONF_SUBST([NO_CURL])
 
 #
 # Define NO_EXPAT if you do not have expat installed.  git-http-push is
