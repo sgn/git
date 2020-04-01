@@ -31,6 +31,7 @@ check_config () {
 }
 
 test_expect_success 'plain' '
+	false &&
 	git init plain &&
 	check_config plain/.git false unset
 '
