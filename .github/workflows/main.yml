@@ -5,7 +5,7 @@ on:
     branch: '**'
   push:
     branch:
-    - ${{ secret.ci_branches }}
+    - '**'
     tags:
     - ${{ secret.ci_tags }}
 
