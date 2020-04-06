@@ -46,7 +46,7 @@ jobs:
       with:
         name: windows-artifacts
         path: ${{github.workspace}}
-    - name: extract artifact
+    - name: extract build artifacts
       shell: powershell
       run: |
         & .\git-sdk-64-minimal\usr\bin\bash.exe -lc @"
