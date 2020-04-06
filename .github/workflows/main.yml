@@ -170,30 +170,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: install dependencies
-      run: ci/install-dependencies.sh
-    - name: ci/run-build-and-test.sh
-      run: ci/run-build-and-tests.sh
-    - name: ci/print-test-failures.sh
+    - run: ci/install-dependencies.sh
+    - run: ci/run-build-and-tests.sh
+    - run: ci/print-test-failures.sh
       if: failure()
-      run: |
-        ci/print-test-failures.sh
-        exit 1
   linux-gcc:
     env:
       jobname: linux-gcc
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: install dependencies
-      run: ci/install-dependencies.sh
-    - name: ci/run-build-and-tests.sh
-      run: ci/run-build-and-tests.sh
-    - name: ci/print-test-failures.sh
+    - run: ci/install-dependencies.sh
+    - run: ci/run-build-and-tests.sh
+    - run: ci/print-test-failures.sh
       if: failure()
-      run: |
-        ci/print-test-failures.sh
-        exit 1
   osx-clang:
     env:
       CC: clang
@@ -202,43 +192,28 @@ jobs:
     - uses: actions/checkout@v1
     - name: dump environment
       run: env
-    - name: install dependencies
-      run: ci/install-dependencies.sh
-    - name: ci/run-build-and-test.sh
-      run: ci/run-build-and-tests.sh
-    - name: ci/print-test-failures.sh
+    - run: ci/install-dependencies.sh
+    - run: ci/run-build-and-tests.sh
+    - run: ci/print-test-failures.sh
       if: failure()
-      run: |
-        ci/print-test-failures.sh
-        exit 1
   osx-gcc:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v1
-    - name: install dependencies
-      run: ci/install-dependencies.sh
-    - name: ci/run-build-and-tests.sh
-      run: ci/run-build-and-tests.sh
-    - name: ci/print-test-failures.sh
+    - run: ci/install-dependencies.sh
+    - run: ci/run-build-and-tests.sh
+    - run: ci/print-test-failures.sh
       if: failure()
-      run: |
-        ci/print-test-failures.sh
-        exit 1
   gettext-poison:
     env:
       jobname: GIT_TEST_GETTEXT_POISON
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: install dependencies
-      run: ci/install-dependencies.sh
-    - name: ci/run-build-and-tests.sh
-      run: ci/run-build-and-tests.sh
-    - name: ci/print-test-failures.sh
+    - run: ci/install-dependencies.sh
+    - run: ci/run-build-and-tests.sh
+    - run: ci/print-test-failures.sh
       if: failure()
-      run: |
-        ci/print-test-failures.sh
-        exit 1
   linux-musl:
     env:
       jobname: linux-musl
@@ -247,13 +222,10 @@ jobs:
       image: alpine
     steps:
     - uses: actions/checkout@v1
-    - name: install dependencies
-      run: ci/install-docker-dependencies.sh
-    - name: ci/run-build-and-tests.sh
-      run: ci/run-build-and-tests.sh
-    - name: ci/print-test-failures.sh
+    - run: ci/install-docker-dependencies.sh
+    - run: ci/run-build-and-tests.sh
+    - run: ci/print-test-failures.sh
       if: failure()
-      run: ci/print-test-failures.sh
   linux32:
     env:
       jobname: Linux32
@@ -262,30 +234,23 @@ jobs:
       image: daald/ubuntu32:xenial
     steps:
     - uses: actions/checkout@v1
-    - name: install dependencies
-      run: ci/install-docker-dependencies.sh
-    - name: ci/run-build-and-tests.sh
-      run: ci/run-build-and-tests.sh
-    - name: ci/print-test-failures.sh
+    - run: ci/install-docker-dependencies.sh
+    - run: ci/run-build-and-tests.sh
+    - run: ci/print-test-failures.sh
       if: failure()
-      run: ci/print-test-failures.sh
   static-analysis:
     env:
       jobname: StaticAnalysis
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: install dependencies
-      run: ci/install-dependencies.sh
-    - name: ci/run-static-analysis.sh
-      run: ci/run-static-analysis.sh
+    - run: ci/install-dependencies.sh
+    - run: ci/run-static-analysis.sh
   documentation:
     env:
       jobname: Documentation
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: install dependencies
-      run: ci/install-dependencies.sh
-    - name: ci/test-documentation.sh
-      run: ci/test-documentation.sh
+    - run: ci/install-dependencies.sh
+    - run: ci/test-documentation.sh
