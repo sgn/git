@@ -224,7 +224,7 @@ jobs:
       run: |
         ci/print-test-failures.sh
         exit 1
-  GETTEXT_POISON:
+  gettext-poison:
     env:
       jobname: GIT_TEST_GETTEXT_POISON
     runs-on: ubuntu-latest
