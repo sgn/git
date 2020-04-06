@@ -25,7 +25,6 @@ jobs:
 
           ci/make-test-artifacts.sh artifacts
         "@
-        if (!$?) { exit(1) }
     - name: upload build artifacts
       uses: actions/upload-artifact@v1
       with:
@@ -57,7 +56,6 @@ jobs:
           }
           tar xf artifacts.tar.gz
         "@
-        if (!$?) { exit(1) }
     - name: test
       shell: powershell
       run: |
@@ -67,13 +65,11 @@ jobs:
 
           ci/run-test-slice.sh ${{matrix.nr}} 10
         "@
-        if (!$?) { exit(1) }
     - name: ci/print-test-failures.sh
       if: failure()
       shell: powershell
       run: |
         & .\git-sdk-64-minimal\usr\bin\bash.exe -lc ci/print-test-failures.sh
-        exit(1)
   vs-build:
     env:
       MSYSTEM: MINGW64
@@ -117,7 +113,6 @@ jobs:
           mkdir -p artifacts &&
           eval \"`$(make -n artifacts-tar INCLUDE_DLLS_IN_ARTIFACTS=YesPlease ARTIFACTS_DIRECTORY=artifacts 2>&1 | grep ^tar)\"
         "@
-        if (!$?) { exit(1) }
     - name: upload build artifacts
       uses: actions/upload-artifact@v1
       with:
@@ -162,7 +157,6 @@ jobs:
                   `$(test-tool.exe path-utils slice-tests \
                           ${{matrix.nr}} 10 t[0-9]*.sh)
         "@
-        if (!$?) { exit(1) }
   linux-clang:
     env:
       CC: clang
