@@ -47,15 +47,8 @@ jobs:
         name: windows-artifacts
         path: ${{github.workspace}}
     - name: extract build artifacts
-      shell: powershell
-      run: |
-        & .\git-sdk-64-minimal\usr\bin\bash.exe -lc @"
-          test -f artifacts.tar.gz || {
-            echo No test artifacts found\; skipping >&2
-            exit 0
-          }
-          tar xf artifacts.tar.gz
-        "@
+      shell: bash
+      run: tar xf artifacts.tar.gz
     - name: test
       shell: powershell
       run: |
