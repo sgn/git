@@ -160,7 +160,8 @@ then
 
 	# https://github.com/actions/toolkit/blob/master/docs/commands.md#problem-matchers
 	echo "::add-matcher::ci/git-problem-matcher.json"
-	MAKEFLAGS="$MAKEFLAGS TEST_SHELL_PATH=/bin/bash"
+	test linux-musl = "$jobname" ||
+	MAKEFLAGS="$MAKEFLAGS TEST_SHELL_PATH=/bin/sh"
 else
 	echo "Could not identify CI type" >&2
 	env >&2
