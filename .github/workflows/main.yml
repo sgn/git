@@ -307,6 +307,5 @@ jobs:
       run: ci/install-dependencies.sh
     - name: ci/test-documentation.sh
       env:
-        ALREADY_HAVE_ASCIIDOCTOR: yes.
         jobname: Documentation
       run: ci/test-documentation.sh
