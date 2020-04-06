@@ -10,10 +10,10 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Download git-sdk-64-minimal
+    - name: download git-sdk-64-minimal
       shell: bash
       run: a=git-sdk-64-minimal && mkdir -p $a && curl -# https://wingit.blob.core.windows.net/ci-artifacts/$a.tar.xz | tar -C $a -xJf -
-    - name: Build
+    - name: build
       shell: powershell
       env:
         HOME: ${{runner.workspace}}
@@ -26,7 +26,7 @@ jobs:
           ci/make-test-artifacts.sh artifacts
         "@
         if (!$?) { exit(1) }
-    - name: Upload build artifacts
+    - name: upload build artifacts
       uses: actions/upload-artifact@v1
       with:
         name: windows-artifacts
@@ -39,10 +39,10 @@ jobs:
         nr: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     steps:
     - uses: actions/checkout@v1
-    - name: Download git-sdk-64-minimal
+    - name: download git-sdk-64-minimal
       shell: bash
       run: a=git-sdk-64-minimal && mkdir -p $a && curl -# https://wingit.blob.core.windows.net/ci-artifacts/$a.tar.xz | tar -C $a -xJf -
-    - name: Download build artifacts
+    - name: download build artifacts
       uses: actions/download-artifact@v1
       with:
         name: windows-artifacts
@@ -58,7 +58,7 @@ jobs:
           tar xf artifacts.tar.gz
         "@
         if (!$?) { exit(1) }
-    - name: Test
+    - name: test
       shell: powershell
       run: |
         & .\git-sdk-64-minimal\usr\bin\bash.exe -lc @"
@@ -82,17 +82,17 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Download git-sdk-64-minimal
+    - name: download git-sdk-64-minimal
       shell: bash
       run: a=git-sdk-64-minimal && mkdir -p $a && curl -# https://wingit.blob.core.windows.net/ci-artifacts/$a.tar.xz | tar -C $a -xJf -
-    - name: Generate Visual Studio Solution
+    - name: generate Visual Studio solution
       shell: powershell
       run: |
         & .\git-sdk-64-minimal\usr\bin\bash.exe -lc @"
           make NDEBUG=1 DEVELOPER=1 vcxproj
         "@
         if (!$?) { exit(1) }
-    - name: Download vcpkg artifacts
+    - name: download vcpkg artifacts
       shell: powershell
       run: |
         $urlbase = "https://dev.azure.com/git/git/_apis/build/builds"
@@ -101,11 +101,11 @@ jobs:
         (New-Object Net.WebClient).DownloadFile($downloadUrl, "compat.zip")
         Expand-Archive compat.zip -DestinationPath . -Force
         Remove-Item compat.zip
-    - name: Add msbuild to PATH
+    - name: add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.0.0
     - name: MSBuild
       run: msbuild git.sln -property:Configuration=Release -property:Platform=x64 -maxCpuCount:4 -property:PlatformToolset=v142
-    - name: Bundle artifact tar
+    - name: bundle artifact tar
       shell: powershell
       env:
         MSVC: 1
@@ -118,7 +118,7 @@ jobs:
           eval \"`$(make -n artifacts-tar INCLUDE_DLLS_IN_ARTIFACTS=YesPlease ARTIFACTS_DIRECTORY=artifacts 2>&1 | grep ^tar)\"
         "@
         if (!$?) { exit(1) }
-    - name: Upload build artifacts
+    - name: upload build artifacts
       uses: actions/upload-artifact@v1
       with:
         name: vs-artifacts
@@ -131,15 +131,15 @@ jobs:
         nr: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     steps:
     - uses: actions/checkout@v1
-    - name: Download git-64-portable
+    - name: download git-64-portable
       shell: bash
       run: a=git-64-portable && mkdir -p $a && curl -# https://wingit.blob.core.windows.net/ci-artifacts/$a.tar.xz | tar -C $a -xJf -
-    - name: Download build artifacts
+    - name: download build artifacts
       uses: actions/download-artifact@v1
       with:
         name: vs-artifacts
         path: ${{github.workspace}}
-    - name: Test (parallel)
+    - name: test (parallel)
       shell: powershell
       env:
         MSYSTEM: MINGW64
