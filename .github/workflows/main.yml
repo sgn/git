@@ -255,7 +255,8 @@ jobs:
         exit 1
   linux-musl:
     runs-on: ubuntu-latest
-    container: alpine
+    container:
+      image: alpine
     steps:
     - uses: actions/checkout@v1
     - name: install dependencies
@@ -271,7 +272,8 @@ jobs:
       run: ci/print-test-failures.sh
   linux32:
     runs-on: ubuntu-latest
-    container: daald/ubuntu32:xenial
+    container:
+      image: daald/ubuntu32:xenial
     steps:
     - uses: actions/checkout@v1
     - name: install dependencies
