@@ -134,6 +134,9 @@ jobs:
       with:
         name: vs-artifacts
         path: ${{github.workspace}}
+    - name: extract build artifacts
+      shell: bash
+      run: tar xf artifacts.tar.gz
     - name: test (parallel)
       shell: powershell
       env:
@@ -142,12 +145,6 @@ jobs:
         GIT_TEST_SKIP_REBASE_P: 1
       run: |
         & git-64-portable\git-cmd.exe --command=usr\bin\bash.exe -lc @"
-          test -f artifacts.tar.gz || {
-            echo No test artifacts found\; skipping >&2
-            exit 0
-          }
-          tar xf artifacts.tar.gz || exit 1
-
           # Let Git ignore the SDK and the test-cache
           printf '%s\n' /git-64-portable/ /test-cache/ >>.git/info/exclude
 
