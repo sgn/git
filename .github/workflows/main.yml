@@ -154,73 +154,38 @@ jobs:
                   `$(test-tool.exe path-utils slice-tests \
                           ${{matrix.nr}} 10 t[0-9]*.sh)
         "@
-  linux-clang:
+  regular:
+    strategy:
+      matrix:
+        vector: [
+          { 'jobname': 'linux-clang', 'cc': 'clang', 'pool': 'ubuntu-latest' },
+          { 'jobname': 'linux-gcc', 'cc': 'gcc', 'pool': 'ubuntu-latest' },
+          { 'jobname': 'osx-clang', 'cc': 'clang', 'pool': 'macos-latest' },
+          { 'jobname': 'osx-gcc', 'cc': 'gcc', 'pool': 'macos-latest' },
+          { 'jobname': 'GIT_TEST_GETTEXT_POISON', 'cc': 'gcc', 'pool': 'ubuntu-latest' }
+        ]
     env:
-      CC: clang
-      jobname: linux-clang
-    runs-on: ubuntu-latest
+      CC: ${{matrix.vector.cc}}
+      jobname: ${{matrix.vector.jobname}}
+    runs-on: ${{matrix.vector.pool}}
     steps:
     - uses: actions/checkout@v1
     - run: ci/install-dependencies.sh
     - run: ci/run-build-and-tests.sh
     - run: ci/print-test-failures.sh
       if: failure()
-  linux-gcc:
+  dockerized:
+    strategy:
+      matrix:
+        vector: [
+          { 'jobname': 'linux-musl', 'image': 'alpine' },
+          { 'jobname': 'Linux32', 'image': 'daald/ubuntu32:xenial' }
+        ]
     env:
-      jobname: linux-gcc
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - run: ci/install-dependencies.sh
-    - run: ci/run-build-and-tests.sh
-    - run: ci/print-test-failures.sh
-      if: failure()
-  osx-clang:
-    env:
-      CC: clang
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v1
-    - run: ci/install-dependencies.sh
-    - run: ci/run-build-and-tests.sh
-    - run: ci/print-test-failures.sh
-      if: failure()
-  osx-gcc:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v1
-    - run: ci/install-dependencies.sh
-    - run: ci/run-build-and-tests.sh
-    - run: ci/print-test-failures.sh
-      if: failure()
-  gettext-poison:
-    env:
-      jobname: GIT_TEST_GETTEXT_POISON
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - run: ci/install-dependencies.sh
-    - run: ci/run-build-and-tests.sh
-    - run: ci/print-test-failures.sh
-      if: failure()
-  linux-musl:
-    env:
-      jobname: linux-musl
+      jobname: ${{matrix.vector.jobname}}
     runs-on: ubuntu-latest
     container:
-      image: alpine
-    steps:
-    - uses: actions/checkout@v1
-    - run: ci/install-docker-dependencies.sh
-    - run: ci/run-build-and-tests.sh
-    - run: ci/print-test-failures.sh
-      if: failure()
-  linux32:
-    env:
-      jobname: Linux32
-    runs-on: ubuntu-latest
-    container:
-      image: daald/ubuntu32:xenial
+      image: ${{matrix.vector.image}}
     steps:
     - uses: actions/checkout@v1
     - run: ci/install-docker-dependencies.sh
