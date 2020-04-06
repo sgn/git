@@ -10,10 +10,10 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Download git-sdk-64-minimal
+    - name: download git-sdk-64-minimal
       shell: bash
       run: a=git-sdk-64-minimal && mkdir -p $a && curl -# https://wingit.blob.core.windows.net/ci-artifacts/$a.tar.xz | tar -C $a -xJf -
-    - name: Build
+    - name: build
       shell: powershell
       env:
         HOME: ${{runner.workspace}}
@@ -25,8 +25,7 @@ jobs:
 
           ci/make-test-artifacts.sh artifacts
         "@
-        if (!$?) { exit(1) }
-    - name: Upload build artifacts
+    - name: upload build artifacts
       uses: actions/upload-artifact@v1
       with:
         name: windows-artifacts
@@ -39,26 +38,18 @@ jobs:
         nr: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     steps:
     - uses: actions/checkout@v1
-    - name: Download git-sdk-64-minimal
+    - name: download git-sdk-64-minimal
       shell: bash
       run: a=git-sdk-64-minimal && mkdir -p $a && curl -# https://wingit.blob.core.windows.net/ci-artifacts/$a.tar.xz | tar -C $a -xJf -
-    - name: Download build artifacts
+    - name: download build artifacts
       uses: actions/download-artifact@v1
       with:
         name: windows-artifacts
         path: ${{github.workspace}}
-    - name: extract artifact
-      shell: powershell
-      run: |
-        & .\git-sdk-64-minimal\usr\bin\bash.exe -lc @"
-          test -f artifacts.tar.gz || {
-            echo No test artifacts found\; skipping >&2
-            exit 0
-          }
-          tar xf artifacts.tar.gz
-        "@
-        if (!$?) { exit(1) }
-    - name: Test
+    - name: extract build artifacts
+      shell: bash
+      run: tar xf artifacts.tar.gz
+    - name: test
       shell: powershell
       run: |
         & .\git-sdk-64-minimal\usr\bin\bash.exe -lc @"
@@ -67,32 +58,30 @@ jobs:
 
           ci/run-test-slice.sh ${{matrix.nr}} 10
         "@
-        if (!$?) { exit(1) }
     - name: ci/print-test-failures.sh
       if: failure()
       shell: powershell
       run: |
         & .\git-sdk-64-minimal\usr\bin\bash.exe -lc ci/print-test-failures.sh
-        exit(1)
   vs-build:
+    env:
+      MSYSTEM: MINGW64
+      NO_PERL: 1
+      GIT_CONFIG_PARAMETERS: "'user.name=CI' 'user.email=ci@git'"
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Download git-sdk-64-minimal
+    - name: download git-sdk-64-minimal
       shell: bash
       run: a=git-sdk-64-minimal && mkdir -p $a && curl -# https://wingit.blob.core.windows.net/ci-artifacts/$a.tar.xz | tar -C $a -xJf -
-    - name: Generate Visual Studio Solution
+    - name: generate Visual Studio solution
       shell: powershell
-      env:
-        MSYSTEM: MINGW64
-        NO_PERL: 1
-        GIT_CONFIG_PARAMETERS: "'user.name=CI' 'user.email=ci@git'"
       run: |
         & .\git-sdk-64-minimal\usr\bin\bash.exe -lc @"
           make NDEBUG=1 DEVELOPER=1 vcxproj
         "@
         if (!$?) { exit(1) }
-    - name: Download vcpkg artifacts
+    - name: download vcpkg artifacts
       shell: powershell
       run: |
         $urlbase = "https://dev.azure.com/git/git/_apis/build/builds"
@@ -101,15 +90,13 @@ jobs:
         (New-Object Net.WebClient).DownloadFile($downloadUrl, "compat.zip")
         Expand-Archive compat.zip -DestinationPath . -Force
         Remove-Item compat.zip
-    - name: Add msbuild to PATH
+    - name: add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.0.0
     - name: MSBuild
       run: msbuild git.sln -property:Configuration=Release -property:Platform=x64 -maxCpuCount:4 -property:PlatformToolset=v142
-    - name: Bundle artifact tar
+    - name: bundle artifact tar
       shell: powershell
       env:
-        MSYSTEM: MINGW64
-        NO_PERL: 1
         MSVC: 1
         VCPKG_ROOT: ${{github.workspace}}\compat\vcbuild\vcpkg
       run: |
@@ -119,8 +106,7 @@ jobs:
           mkdir -p artifacts &&
           eval \"`$(make -n artifacts-tar INCLUDE_DLLS_IN_ARTIFACTS=YesPlease ARTIFACTS_DIRECTORY=artifacts 2>&1 | grep ^tar)\"
         "@
-        if (!$?) { exit(1) }
-    - name: Upload build artifacts
+    - name: upload build artifacts
       uses: actions/upload-artifact@v1
       with:
         name: vs-artifacts
@@ -133,15 +119,18 @@ jobs:
         nr: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     steps:
     - uses: actions/checkout@v1
-    - name: Download git-64-portable
+    - name: download git-64-portable
       shell: bash
       run: a=git-64-portable && mkdir -p $a && curl -# https://wingit.blob.core.windows.net/ci-artifacts/$a.tar.xz | tar -C $a -xJf -
-    - name: Download build artifacts
+    - name: download build artifacts
       uses: actions/download-artifact@v1
       with:
         name: vs-artifacts
         path: ${{github.workspace}}
-    - name: Test (parallel)
+    - name: extract build artifacts
+      shell: bash
+      run: tar xf artifacts.tar.gz
+    - name: test (parallel)
       shell: powershell
       env:
         MSYSTEM: MINGW64
@@ -149,12 +138,6 @@ jobs:
         GIT_TEST_SKIP_REBASE_P: 1
       run: |
         & git-64-portable\git-cmd.exe --command=usr\bin\bash.exe -lc @"
-          test -f artifacts.tar.gz || {
-            echo No test artifacts found\; skipping >&2
-            exit 0
-          }
-          tar xf artifacts.tar.gz || exit 1
-
           # Let Git ignore the SDK and the test-cache
           printf '%s\n' /git-64-portable/ /test-cache/ >>.git/info/exclude
 
@@ -164,149 +147,57 @@ jobs:
                   `$(test-tool.exe path-utils slice-tests \
                           ${{matrix.nr}} 10 t[0-9]*.sh)
         "@
-        if (!$?) { exit(1) }
-  linux-clang:
+  regular:
+    strategy:
+      matrix:
+        vector: [
+          { 'jobname': 'linux-clang', 'cc': 'clang', 'pool': 'ubuntu-latest' },
+          { 'jobname': 'linux-gcc', 'cc': 'gcc', 'pool': 'ubuntu-latest' },
+          { 'jobname': 'osx-clang', 'cc': 'clang', 'pool': 'macos-latest' },
+          { 'jobname': 'osx-gcc', 'cc': 'gcc', 'pool': 'macos-latest' },
+          { 'jobname': 'GETTEXT_POISON', 'cc': 'gcc', 'pool': 'ubuntu-latest' }
+        ]
+    env:
+      CC: ${{matrix.vector.cc}}
+      jobname: ${{matrix.vector.jobname}}
+    runs-on: ${{matrix.vector.pool}}
+    steps:
+    - uses: actions/checkout@v1
+    - run: ci/install-dependencies.sh
+    - run: ci/run-build-and-tests.sh
+    - run: ci/print-test-failures.sh
+      if: failure()
+  dockerized:
+    strategy:
+      matrix:
+        vector: [
+          { 'jobname': 'linux-musl', 'image': 'alpine' },
+          { 'jobname': 'Linux32', 'image': 'daald/ubuntu32:xenial' }
+        ]
+    env:
+      jobname: ${{matrix.vector.jobname}}
     runs-on: ubuntu-latest
+    container:
+      image: ${{matrix.vector.image}}
     steps:
     - uses: actions/checkout@v1
-    - name: install dependencies
-      env:
-        CC: clang
-        jobname: linux-clang
-      run: ci/install-dependencies.sh
-    - name: ci/run-build-and-test.sh
-      env:
-        CC: clang
-      run: ci/run-build-and-tests.sh
-    - name: ci/print-test-failures.sh
+    - run: ci/install-docker-dependencies.sh
+    - run: ci/run-build-and-tests.sh
+    - run: ci/print-test-failures.sh
       if: failure()
-      env:
-        CC: clang
-      run: |
-        ci/print-test-failures.sh
-        exit 1
-  linux-gcc:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - name: install dependencies
-      env:
-        jobname: linux-gcc
-      run: ci/install-dependencies.sh
-    - name: ci/run-build-and-tests.sh
-      run: ci/run-build-and-tests.sh
-    - name: ci/print-test-failures.sh
-      if: failure()
-      run: |
-        ci/print-test-failures.sh
-        exit 1
-  osx-clang:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v1
-    - name: dump environment
-      run: env
-    - name: install dependencies
-      env:
-        CC: clang
-      run: ci/install-dependencies.sh
-    - name: ci/run-build-and-test.sh
-      env:
-        CC: clang
-      run: ci/run-build-and-tests.sh
-    - name: ci/print-test-failures.sh
-      if: failure()
-      env:
-        CC: clang
-      run: |
-        ci/print-test-failures.sh
-        exit 1
-  osx-gcc:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v1
-    - name: install dependencies
-      run: ci/install-dependencies.sh
-    - name: ci/run-build-and-tests.sh
-      run: ci/run-build-and-tests.sh
-    - name: ci/print-test-failures.sh
-      if: failure()
-      run: |
-        ci/print-test-failures.sh
-        exit 1
-  GETTEXT_POISON:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - name: install dependencies
-      env:
-        jobname: GIT_TEST_GETTEXT_POISON
-      run: ci/install-dependencies.sh
-    - name: ci/run-build-and-tests.sh
-      env:
-        jobname: GIT_TEST_GETTEXT_POISON
-      run: ci/run-build-and-tests.sh
-    - name: ci/print-test-failures.sh
-      if: failure()
-      env:
-        jobname: GIT_TEST_GETTEXT_POISON
-      run: |
-        ci/print-test-failures.sh
-        exit 1
-  linux-musl:
-    runs-on: ubuntu-latest
-    container: alpine
-    steps:
-    - uses: actions/checkout@v1
-    - name: install dependencies
-      env:
-        jobname: linux-musl
-      run: ci/install-docker-dependencies.sh
-    - name: ci/run-build-and-tests.sh
-      env:
-        jobname: linux-musl
-      run: ci/run-build-and-tests.sh
-    - name: ci/print-test-failures.sh
-      if: failure()
-      run: ci/print-test-failures.sh
-  linux32:
-    runs-on: ubuntu-latest
-    container: daald/ubuntu32:xenial
-    steps:
-    - uses: actions/checkout@v1
-    - name: install dependencies
-      env:
-        jobname: Linux32
-      run: ci/install-docker-dependencies.sh
-    - name: ci/run-build-and-tests.sh
-      env:
-        jobname: Linux32
-      run: ci/run-build-and-tests.sh
-    - name: ci/print-test-failures.sh
-      if: failure()
-      run: ci/print-test-failures.sh
   static-analysis:
+    env:
+      jobname: StaticAnalysis
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: install dependencies
-      env:
-        jobname: StaticAnalysis
-      run: ci/install-dependencies.sh
-    - name: ci/run-static-analysis.sh
-      env:
-        jobname: StaticAnalysis
-      run: ci/run-static-analysis.sh
+    - run: ci/install-dependencies.sh
+    - run: ci/run-static-analysis.sh
   documentation:
+    env:
+      jobname: Documentation
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: install dependencies
-      env:
-        jobname: Documentation
-      run: ci/install-dependencies.sh
-    - name: ci/test-documentation.sh
-      env:
-        ALREADY_HAVE_ASCIIDOCTOR: yes.
-        jobname: Documentation
-      run: ci/test-documentation.sh
+    - run: ci/install-dependencies.sh
+    - run: ci/test-documentation.sh

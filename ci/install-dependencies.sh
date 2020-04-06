@@ -70,9 +70,9 @@ Documentation)
 		libcurl4-openssl-dev
 
 	test -n "$ALREADY_HAVE_ASCIIDOCTOR" ||
-	gem install --version 1.5.8 asciidoctor
+	sudo gem install --version 1.5.8 asciidoctor
 	;;
-GIT_TEST_GETTEXT_POISON)
+GETTEXT_POISON)
 	sudo apt-get -q update
 	sudo apt-get -q -y install $UBUNTU_COMMON_PKGS
 	;;
