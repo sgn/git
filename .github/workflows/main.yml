@@ -190,8 +190,6 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v1
-    - name: dump environment
-      run: env
     - run: ci/install-dependencies.sh
     - run: ci/run-build-and-tests.sh
     - run: ci/print-test-failures.sh
