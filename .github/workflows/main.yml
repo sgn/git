@@ -75,6 +75,10 @@ jobs:
         & .\git-sdk-64-minimal\usr\bin\bash.exe -lc ci/print-test-failures.sh
         exit(1)
   vs-build:
+    env:
+      MSYSTEM: MINGW64
+      NO_PERL: 1
+      GIT_CONFIG_PARAMETERS: "'user.name=CI' 'user.email=ci@git'"
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
@@ -83,10 +87,6 @@ jobs:
       run: a=git-sdk-64-minimal && mkdir -p $a && curl -# https://wingit.blob.core.windows.net/ci-artifacts/$a.tar.xz | tar -C $a -xJf -
     - name: Generate Visual Studio Solution
       shell: powershell
-      env:
-        MSYSTEM: MINGW64
-        NO_PERL: 1
-        GIT_CONFIG_PARAMETERS: "'user.name=CI' 'user.email=ci@git'"
       run: |
         & .\git-sdk-64-minimal\usr\bin\bash.exe -lc @"
           make NDEBUG=1 DEVELOPER=1 vcxproj
@@ -108,8 +108,6 @@ jobs:
     - name: Bundle artifact tar
       shell: powershell
       env:
-        MSYSTEM: MINGW64
-        NO_PERL: 1
         MSVC: 1
         VCPKG_ROOT: ${{github.workspace}}\compat\vcbuild\vcpkg
       run: |
@@ -166,32 +164,28 @@ jobs:
         "@
         if (!$?) { exit(1) }
   linux-clang:
+    env:
+      CC: clang
+      jobname: linux-clang
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - name: install dependencies
-      env:
-        CC: clang
-        jobname: linux-clang
       run: ci/install-dependencies.sh
     - name: ci/run-build-and-test.sh
-      env:
-        CC: clang
       run: ci/run-build-and-tests.sh
     - name: ci/print-test-failures.sh
       if: failure()
-      env:
-        CC: clang
       run: |
         ci/print-test-failures.sh
         exit 1
   linux-gcc:
+    env:
+      jobname: linux-gcc
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - name: install dependencies
-      env:
-        jobname: linux-gcc
       run: ci/install-dependencies.sh
     - name: ci/run-build-and-tests.sh
       run: ci/run-build-and-tests.sh
@@ -201,23 +195,19 @@ jobs:
         ci/print-test-failures.sh
         exit 1
   osx-clang:
+    env:
+      CC: clang
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v1
     - name: dump environment
       run: env
     - name: install dependencies
-      env:
-        CC: clang
       run: ci/install-dependencies.sh
     - name: ci/run-build-and-test.sh
-      env:
-        CC: clang
       run: ci/run-build-and-tests.sh
     - name: ci/print-test-failures.sh
       if: failure()
-      env:
-        CC: clang
       run: |
         ci/print-test-failures.sh
         exit 1
@@ -235,79 +225,67 @@ jobs:
         ci/print-test-failures.sh
         exit 1
   GETTEXT_POISON:
+    env:
+      jobname: GIT_TEST_GETTEXT_POISON
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - name: install dependencies
-      env:
-        jobname: GIT_TEST_GETTEXT_POISON
       run: ci/install-dependencies.sh
     - name: ci/run-build-and-tests.sh
-      env:
-        jobname: GIT_TEST_GETTEXT_POISON
       run: ci/run-build-and-tests.sh
     - name: ci/print-test-failures.sh
       if: failure()
-      env:
-        jobname: GIT_TEST_GETTEXT_POISON
       run: |
         ci/print-test-failures.sh
         exit 1
   linux-musl:
+    env:
+      jobname: linux-musl
     runs-on: ubuntu-latest
     container:
       image: alpine
     steps:
     - uses: actions/checkout@v1
     - name: install dependencies
-      env:
-        jobname: linux-musl
       run: ci/install-docker-dependencies.sh
     - name: ci/run-build-and-tests.sh
-      env:
-        jobname: linux-musl
       run: ci/run-build-and-tests.sh
     - name: ci/print-test-failures.sh
       if: failure()
       run: ci/print-test-failures.sh
   linux32:
+    env:
+      jobname: Linux32
     runs-on: ubuntu-latest
     container:
       image: daald/ubuntu32:xenial
     steps:
     - uses: actions/checkout@v1
     - name: install dependencies
-      env:
-        jobname: Linux32
       run: ci/install-docker-dependencies.sh
     - name: ci/run-build-and-tests.sh
-      env:
-        jobname: Linux32
       run: ci/run-build-and-tests.sh
     - name: ci/print-test-failures.sh
       if: failure()
       run: ci/print-test-failures.sh
   static-analysis:
+    env:
+      jobname: StaticAnalysis
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - name: install dependencies
-      env:
-        jobname: StaticAnalysis
       run: ci/install-dependencies.sh
     - name: ci/run-static-analysis.sh
-      env:
-        jobname: StaticAnalysis
       run: ci/run-static-analysis.sh
   documentation:
+    env:
+      jobname: Documentation
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - name: install dependencies
-      env:
-        jobname: Documentation
       run: ci/install-dependencies.sh
     - name: ci/test-documentation.sh
-      env:
-        jobname: Documentation
       run: ci/test-documentation.sh
