@@ -554,8 +554,16 @@ static int match_multi_number(timestamp_t num, char c, const char *date,
 	/* Time? Date? */
 	switch (c) {
 	case ':':
-		if (num3 < 0)
+		if (num3 < 0) {
 			num3 = 0;
+		} else if (*end == '.' && isdigit(end[1]) &&
+			   tm->tm_year != -1 && tm->tm_mon != -1 &&
+			   tm->tm_mday != -1) {
+			/* Attempt to guess meaning of <num> in HHMMSS.<num>
+			 * only interpret as fractional when %Y %m %d is known.
+			 */
+			strtol(end + 1, &end, 10);
+		}
 		if (num < 25 && num2 >= 0 && num2 < 60 && num3 >= 0 && num3 <= 60) {
 			tm->tm_hour = num;
 			tm->tm_min = num2;
