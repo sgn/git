@@ -570,8 +570,14 @@ static int match_multi_number(timestamp_t num, char c, const char *date,
 	/* Time? Date? */
 	switch (c) {
 	case ':':
-		if (num3 < 0)
+		if (num3 < 0) {
 			num3 = 0;
+		} else if (*end == '.' && isdigit(end[1]) &&
+			   tm->tm_year != -1 && tm->tm_mon != -1 && tm->tm_mday != -1 &&
+			   set_time(num, num2, num3, tm) == 0) {
+			/* %Y%m%d is known, ignore fractional <num4> in HHMMSS.<num4> */
+			strtol(end + 1, &end, 10);
+		}
 		if (set_time(num, num2, num3, tm) == 0)
 			break;
 		return 0;
