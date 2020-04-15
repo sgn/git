@@ -556,6 +556,8 @@ static int match_multi_number(timestamp_t num, char c, const char *date,
 	case ':':
 		if (num3 < 0)
 			num3 = 0;
+		else if (*end == '.' && isdigit(end[1]))
+			strtol(end + 1, &end, 10);
 		if (num < 25 && num2 >= 0 && num2 < 60 && num3 >= 0 && num3 <= 60) {
 			tm->tm_hour = num;
 			tm->tm_min = num2;
