@@ -987,6 +987,37 @@ again:
 	return 1;
 }
 
+static void handle_first_space(struct mailinfo *mi, struct strbuf *line) {
+	if (!line->len) {
+		/* Empty line in patch is likely a corrupted empty context */
+		if (mi->filter_stage == 1)
+			strbuf_addch(line, ' ');
+		return;
+	}
+
+	if (mi->charset.len && !same_encoding("UTF-8", mi->charset.buf)) {
+		char *utf8 = NULL;
+		size_t utf8_len = 0;
+		char *newbuf;
+		size_t newbuf_len;
+
+		utf8 = reencode_string_len(line->buf, line->len,
+		                           "UTF-8", mi->charset.buf,
+		                           &utf8_len);
+		if (starts_with(utf8, "\xC2\xA0")) {
+			utf8[1] = ' ';
+			newbuf = reencode_string_len(utf8 + 1, utf8_len - 1,
+			                             mi->charset.buf, "UTF-8",
+			                             &newbuf_len);
+			strbuf_attach(line, newbuf, newbuf_len, newbuf_len);
+		}
+		free(utf8);
+	} else if (starts_with(line->buf, "\xC2\xA0")) {
+		line->buf[1] = ' ';
+		strbuf_remove(line, 0, 1);
+	}
+}
+
 static void handle_filter_flowed(struct mailinfo *mi, struct strbuf *line,
 				 struct strbuf *prev)
 {
@@ -1030,6 +1061,7 @@ static void handle_filter_flowed(struct mailinfo *mi, struct strbuf *line,
 	strbuf_insert(line, 0, prev->buf, prev->len);
 	strbuf_reset(prev);
 
+	handle_first_space(mi, line);
 	handle_filter(mi, line);
 }
 

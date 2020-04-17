@@ -1,0 +1,38 @@
+Subject: Re: [PATCH] mangled space in line
+From: A U Thor <author@example.com>
+Message-ID: <12345678-9abcdef01-2345-6789abcdef10@example.com>
+Date: Mon, 6 Apr 2020 22:14:00 -0700
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:75.0)
+ Gecko/20100101 Thunderbird/75.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+
+---
+ =C2=A0vi.po | 4 ++++----
+ =C2=A01 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/vi.po b/vi.po
+index 3e5aaf6..2612670 100644
+--- a/vi.po
++++ b/vi.po
+@@ -29,9 +29,9 @@ msgstr ""
+ =C2=A0"\n"
+ =C2=A0"N=E1=BA=BFu b=E1=BA=A1n mu=E1=BB=91n t=E1=BA=A1o m=E1=BB=99t nh=C3=
+=A1nh m=E1=BB=9Bi =C4=91=E1=BB=83 gi=E1=BB=AF l=E1=BA=A1i c=C3=A1c l=E1=BA=
+=A7n chuy=E1=BB=83n giao b=E1=BA=A1n t=E1=BA=A1o,\n"
+ =C2=A0"b=E1=BA=A1n c=C3=B3 th=E1=BB=83 l=C3=A0m th=E1=BA=BF (ngay b=C3=A2=
+y gi=E1=BB=9D hay sau n=C3=A0y) b=E1=BA=B1ng c=C3=A1ch d=C3=B9ng t=C3=B9y=
+ ch=E1=BB=8Dn\n"
+-"d=C3=B2ng l=E1=BB=87nh -b. V=C3=AD d=E1=BB=A5:\n"
++"d=C3=B2ng l=E1=BB=87nh -c. V=C3=AD d=E1=BB=A5:\n"
+ =C2=A0"\n"
+-"=C2=A0 git checkout -c <t=C3=AAn-nh=C3=A1nh-m=E1=BB=9Bi>\n"
++"=C2=A0 git switch -c <t=C3=AAn-nh=C3=A1nh-m=E1=BB=9Bi>\n"
+ =C2=A0"\n"
+ =C2=A0"Ho=C3=A0n l=E1=BA=A1i thao t=C3=A1c n=C3=A0y b=E1=BA=B1ng:\n"
+ =C2=A0"\n"
+--=20
+2.23.0
+
+

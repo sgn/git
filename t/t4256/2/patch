@@ -1,0 +1,49 @@
+Subject: Re: [PATCH] space in context line of flowed email
+From: A U Thor <author@example.com>
+Message-ID: <12345678-9abcdef01-2345-6789abcdef10@example.com>
+Date: Mon, 6 Apr 2020 22:14:00 -0700
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:75.0)
+ Gecko/20100101 Thunderbird/75.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+
+---
+ =C2=A0vi.po | 4 ++--
+ =C2=A01 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/vi.po b/vi.po
+index 71bde18..3e5aaf6 100644
+--- a/vi.po
++++ b/vi.po
+@@ -63,7 +63,7 @@ msgstr "Thao t=C3=A1c ph=C3=A2n gi=E1=BA=A3i kh=C3=B4=
+ng =C4=91=C6=B0=E1=BB=A3c ti=E1=BA=BFn h=C3=A0nh,=20
+ch=C3=BAng ta kh=C3=B4ng ph
+
+ =C2=A0#: builtin/am.c:2381
+ =C2=A0msgid "interactive mode requires patches on the command line"
+-msgstr "ch=E1=BA=BF =C4=91=E1=BB=99 t=C6=B0=C6=A1ng t=C3=A1c y=C3=AAu c=E1=
+=BA=A7u c=C3=B3 c=C3=A1c mi=E1=BA=BFng v=C3=A1 tr=C3=AAn d=C3=B2ng l=C3=AA=
+nh"
++msgstr "ch=E1=BA=BF =C4=91=E1=BB=99 t=C6=B0=C6=A1ng t=C3=A1c y=C3=AAu c=E1=
+=BA=A7u c=C3=B3 c=C3=A1c mi=E1=BA=BFng v=C3=A1 tr=C3=AAn d=C3=B2ng l=E1=BB=
+=87nh"
+
+ =C2=A0#: builtin/apply.c:8
+ =C2=A0msgid "git apply [<options>] [<patch>...]"
+@@ -84,7 +84,7 @@ msgstr "t=E1=BA=A1o/=C4=91=E1=BA=B7t_l=E1=BA=A1i =
+v=C3=A0 chuy=E1=BB=83n =C4=91=E1=BA=BFn m=E1=BB=99t nh=C3=A1nh"
+
+ =C2=A0#: builtin/checkout.c:1779
+ =C2=A0msgid "second guess 'git switch <no-such-branch>'"
+-msgstr "g=E1=BB=A3i =C3=BD th=E1=BB=A9 hai \"git checkout <kh=C3=B4ng-nh=
+=C3=A1nh-n=C3=A0o-nh=C6=B0-v=E1=BA=ADy>\""
++msgstr "g=E1=BB=A3i =C3=BD th=E1=BB=A9 hai \"git switch <kh=C3=B4ng-nh=C3=
+=A1nh-n=C3=A0o-nh=C6=B0-v=E1=BA=ADy>\""
+
+ =C2=A0#: builtin/checkout.c:1781
+ =C2=A0msgid "throw away local modifications"
+--=20
+2.23.0
+
+

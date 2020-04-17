@@ -1,0 +1,111 @@
+#: advice.c:208
+#, c-format
+msgid ""
+"Note: switching to '%s'.\n"
+"\n"
+"You are in 'detached HEAD' state. You can look around, make experimental\n"
+"changes and commit them, and you can discard any commits you make in this\n"
+"state without impacting any branches by switching back to a branch.\n"
+"\n"
+"If you want to create a new branch to retain commits you create, you may\n"
+"do so (now or later) by using -c with the switch command. Example:\n"
+"\n"
+"  git switch -c <new-branch-name>\n"
+"\n"
+"Or undo this operation with:\n"
+"\n"
+"  git switch -\n"
+"\n"
+"Turn off this advice by setting config variable advice.detachedHead to "
+"false\n"
+"\n"
+msgstr ""
+"Chú ý: đang chuyển sang “%s”.\n"
+"\n"
+"Bạn đang ở tình trạng “detached HEAD”. Bạn có thể xem qua, tạo các thay\n"
+"đổi thử nghiệm và chuyển giao chúng, bạn có thể loại bỏ bất kỳ lần chuyển\n"
+"giao nào trong tình trạng này mà không cần đụng chạm đến bất kỳ nhánh nào\n"
+"bằng cách chuyển trở lại một nhánh.\n"
+"\n"
+"Nếu bạn muốn tạo một nhánh mới để giữ lại các lần chuyển giao bạn tạo,\n"
+"bạn có thể làm thế (ngay bây giờ hay sau này) bằng cách dùng tùy chọn\n"
+"dòng lệnh -c. Ví dụ:\n"
+"\n"
+"  git switch -c <tên-nhánh-mới>\n"
+"\n"
+"Hoàn lại thao tác này bằng:\n"
+"\n"
+"  git switch -\n"
+"\n"
+"Tắt hướng dẫn này bằng cách đặt biến advice.detachedHead thành false\n"
+"\n"
+
+#: alias.c:50
+msgid "cmdline ends with \\"
+msgstr "cmdline kết thúc với \\"
+
+#: alias.c:51
+msgid "unclosed quote"
+msgstr "chưa có dấu nháy đóng"
+
+#: builtin/am.c:2365
+#, c-format
+msgid ""
+"Stray %s directory found.\n"
+"Use \"git am --abort\" to remove it."
+msgstr ""
+"Tìm thấy thư mục lạc %s.\n"
+"Dùng \"git am --abort\" để loại bỏ nó đi."
+
+#: builtin/am.c:2371
+msgid "Resolve operation not in progress, we are not resuming."
+msgstr "Thao tác phân giải không được tiến hành, chúng ta không phục hồi lại."
+
+#: builtin/am.c:2381
+msgid "interactive mode requires patches on the command line"
+msgstr "chế độ tương tác yêu cầu có các miếng vá trên dòng lệnh"
+
+#: builtin/apply.c:8
+msgid "git apply [<options>] [<patch>...]"
+msgstr "git apply [<các tùy chọn>] [<miếng-vá>…]"
+
+#: builtin/archive.c:17
+#, c-format
+msgid "could not create archive file '%s'"
+msgstr "không thể tạo tập tin kho (lưu trữ, nén) “%s”"
+
+#: builtin/archive.c:20
+msgid "could not redirect output"
+msgstr "không thể chuyển hướng kết xuất"
+
+#: builtin/checkout.c:1777
+msgid "create/reset and switch to a branch"
+msgstr "tạo/đặt_lại và chuyển đến một nhánh"
+
+#: builtin/checkout.c:1779
+msgid "second guess 'git switch <no-such-branch>'"
+msgstr "gợi ý thứ hai \"git switch <không-nhánh-nào-như-vậy>\""
+
+#: builtin/checkout.c:1781
+msgid "throw away local modifications"
+msgstr "vứt bỏ các sửa đổi địa phương"
+
+#: builtin/checkout.c:1813
+msgid "which tree-ish to checkout from"
+msgstr "lấy ra từ tree-ish nào"
+
+#: builtin/checkout.c:1815
+msgid "restore the index"
+msgstr "phục hồi bảng mục lục"
+
+#: builtin/checkout.c:1817
+msgid "restore the working tree (default)"
+msgstr "phục hồi cây làm việc (mặc định)"
+
+#: builtin/checkout.c:1819
+msgid "ignore unmerged entries"
+msgstr "bỏ qua những thứ chưa hòa trộn: %s"
+
+#: builtin/checkout.c:1820
+msgid "use overlay mode"
+msgstr "dùng chế độ che phủ"
