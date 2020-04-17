@@ -3,6 +3,36 @@
 test_description='git am with corrupt input'
 . ./test-lib.sh
 
+write_nul_patch() {
+	space=' '
+	qNUL=
+	case "$1" in
+		subject) qNUL='=00' ;;
+	esac
+	cat <<-EOF
+	From ec7364544f690c560304f5a5de9428ea3b978b26 Mon Sep 17 00:00:00 2001
+	From: A U Thor <author@example.com>
+	Date: Sun, 19 Apr 2020 13:42:07 +0700
+	Subject: [PATCH] =?ISO-8859-1?q?=C4=CB${qNUL}=D1=CF=D6?=
+	MIME-Version: 1.0
+	Content-Type: text/plain; charset=ISO-8859-1
+	Content-Transfer-Encoding: 8bit
+
+	EOF
+	if test "$1" = body
+	then
+		printf "%s\0%s\n" abc def
+	fi
+	cat <<-\EOF
+	---
+	diff --git a/afile b/afile
+	new file mode 100644
+	index 0000000000..e69de29bb2
+	--$space
+	2.26.1
+	EOF
+}
+
 test_expect_success setup '
 	# Note the missing "+++" line:
 	cat >bad-patch.diff <<-\EOF &&
@@ -30,6 +60,20 @@ test_expect_success 'try to apply corrupted patch' '
 	echo "error: git diff header lacks filename information (line 4)" >expected &&
 	test_path_is_file f &&
 	test_i18ncmp expected actual
+'
+
+test_expect_success "NUL in commit message's body" '
+	test_when_finished "git am --abort" &&
+	write_nul_patch body >body.patch &&
+	test_must_fail git am body.patch 2>err &&
+	grep "a NUL byte in commit log message not allowed" err
+'
+
+test_expect_failure "NUL in commit message's header" '
+	test_when_finished "git am --abort" &&
+	write_nul_patch subject >subject.patch &&
+	test_must_fail git am subject.patch 2>err &&
+	grep "a NUL byte in Subject is not allowed" err
 '
 
 test_done
