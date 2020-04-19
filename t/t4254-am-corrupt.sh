@@ -69,9 +69,11 @@ test_expect_success "NUL in commit message's body" '
 	grep "a NUL byte in commit log message not allowed" err
 '
 
-test_expect_failure "NUL in commit message's header" '
+test_expect_success "NUL in commit message's header" '
 	test_when_finished "git am --abort" &&
 	write_nul_patch subject >subject.patch &&
+	test_must_fail git mailinfo msg patch <subject.patch 2>err &&
+	grep "a NUL byte in Subject is not allowed" err &&
 	test_must_fail git am subject.patch 2>err &&
 	grep "a NUL byte in Subject is not allowed" err
 '
