@@ -62,6 +62,7 @@
 #include <stdint.h>
 
 #ifdef GAWK
+#include <alloca.h>
 #undef alloca
 #define alloca alloca_is_bad_you_should_never_use_it
 #endif

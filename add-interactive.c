@@ -526,7 +526,7 @@ static int get_modified_files(struct repository *r,
 
 	for (i = 0; i < 2; i++) {
 		struct rev_info rev;
-		struct setup_revision_opt opt = { 0 };
+		struct setup_revision_opt opt = { NULL };
 
 		if (filter == INDEX_ONLY)
 			s.mode = (i == 0) ? FROM_INDEX : FROM_WORKTREE;

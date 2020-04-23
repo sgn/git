@@ -50,7 +50,9 @@ static volatile sig_atomic_t progress_update;
  * These are only intended for testing the progress output, i.e. exclusively
  * for 'test-tool progress'.
  */
+extern int progress_testing; /* to silence sparse: internal linkage */
 int progress_testing;
+extern uint64_t progress_test_ns; /* to silence sparse: internal linkage */
 uint64_t progress_test_ns = 0;
 void progress_test_force_update(void); /* To silence -Wmissing-prototypes */
 void progress_test_force_update(void)

@@ -430,9 +430,8 @@ static reg_errcode_t build_wcs_upper_buffer (re_string_t *pstr)
 # endif /* RE_ENABLE_I18N */
 static void build_upper_buffer (re_string_t *pstr) internal_function;
 static void re_string_translate_buffer (re_string_t *pstr) internal_function;
-static unsigned int re_string_context_at (const re_string_t *input, int idx,
-					  int eflags)
-     internal_function __attribute ((pure));
+static internal_function __attribute ((pure))
+unsigned int re_string_context_at (const re_string_t *input, int idx, int eflags);
 #endif
 #define re_string_peek_byte(pstr, offset) \
   ((pstr)->mbs[(pstr)->cur_idx + offset])
