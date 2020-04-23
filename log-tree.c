@@ -449,7 +449,7 @@ static void show_signature(struct rev_info *opt, struct commit *commit)
 {
 	struct strbuf payload = STRBUF_INIT;
 	struct strbuf signature = STRBUF_INIT;
-	struct signature_check sigc = { 0 };
+	struct signature_check sigc = { NULL };
 	int status;
 
 	if (parse_signed_commit(commit, &payload, &signature) <= 0)
@@ -496,7 +496,7 @@ static int show_one_mergetag(struct commit *commit,
 	struct object_id oid;
 	struct tag *tag;
 	struct strbuf verify_message;
-	struct signature_check sigc = { 0 };
+	struct signature_check sigc = { NULL };
 	int status, nth;
 	size_t payload_size;
 

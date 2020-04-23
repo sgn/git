@@ -107,7 +107,7 @@ static int read_patches(const char *range, struct string_list *list,
 		}
 
 		if (starts_with(line, "diff --git")) {
-			struct patch patch = { 0 };
+			struct patch patch = { NULL };
 			struct strbuf root = STRBUF_INIT;
 			int linenr = 0;
 
