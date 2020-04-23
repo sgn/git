@@ -921,7 +921,7 @@ re_string_destruct (re_string_t *pstr)
 /* Return the context at IDX in INPUT.  */
 
 static unsigned int
-internal_function
+internal_function __attribute ((pure))
 re_string_context_at (const re_string_t *input, int idx, int eflags)
 {
   int c;
