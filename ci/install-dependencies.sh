@@ -63,7 +63,7 @@ osx-clang|osx-gcc)
 StaticAnalysis)
 	sudo apt-get -q update
 	sudo apt-get -q -y install coccinelle libcurl4-openssl-dev libssl-dev \
-		libexpat-dev gettext make
+		libexpat-dev gettext make sparse
 	;;
 Documentation)
 	sudo apt-get -q update
