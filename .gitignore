@@ -241,3 +241,4 @@ Release/
 /git.VC.db
 *.dSYM
 msg
+patch
