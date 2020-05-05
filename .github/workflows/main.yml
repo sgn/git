@@ -1,15 +1,13 @@
 name: CI/PR
 
+filter:
+  false: [ '**', '!**wip**' ]
+  true: [ maint, master, next, jch, pu ]
+
 on:
   pull_request:
   push:
-    branches:
-      - maint
-      - master
-      - next
-      - jch
-      - pu
-      - 'for-ci**'
+    branches: ${{ filter[github.repository_owner == 'git' || github.repository_owner == 'gitster'] }}
     tags:
       - '**'
       - '!**wip**'
