@@ -243,3 +243,5 @@ Release/
 msg
 patch
 not-a-file
+not-a-dir
+Meta/
