@@ -242,6 +242,4 @@ Release/
 *.dSYM
 msg
 patch
-not-a-file
-not-a-dir
 Meta/
