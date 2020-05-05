@@ -7,7 +7,7 @@ filter:
 on:
   pull_request:
   push:
-    branches: ${{ filter[github.repository_owner == 'git' || github.repository_owner == 'gitster'] }}
+    branches: ${{ filter[false] }}
     tags:
       - '**'
       - '!**wip**'
