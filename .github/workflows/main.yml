@@ -1,20 +1,11 @@
 name: CI/PR
 
-filter:
-  n:  &nope
-  - '**'
-  - '!**wip**'
-  y: &aye
-  - maint
-  - master
-  - next
-  - jch
-  - pu
-
 on:
   pull_request:
   push:
     branches:
+      - '**'
+      - '!**wip**'
     tags:
       - '**'
       - '!**wip**'
@@ -24,17 +15,8 @@ env:
 
 defaults:
   should_run: &should_run >-
-    ${{
-    (
-    (github.repository_owner == 'git' || github.repository_owner == 'gitster') &&
-    (github.ref == 'refs/heads/maint' || github.ref == 'refs/heads/master')
-    ) ||
-    (
-    github.repository_owner != 'git' && github.repository_owner != 'gitster' &&
-    !contains(github.ref, 'wip')
-    ) ||
-    true
-    }}
+    ${{ (github.repository_owner != 'git' && github.repository_owner != 'gitster') ||
+    github.ref == 'refs/heads/maint' || github.ref == 'refs/heads/master' }}
 
 
 
