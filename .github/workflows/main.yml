@@ -14,7 +14,7 @@ filter:
 on:
   pull_request:
   push:
-    branches: ${{ fromJSON('["**", "!**-wip", "!wip-*"]') }}
+    branches:
     tags:
       - '**'
       - '!**wip**'
@@ -22,8 +22,24 @@ on:
 env:
   DEVELOPER: 1
 
+defaults:
+  should_run: &should_run >-
+    ${{
+    (
+    (github.repository_owner == 'git' || github.repository_owner == 'gitster') &&
+    (github.ref == 'refs/heads/maint' || github.ref == 'refs/heads/master')
+    ) ||
+    (
+    github.repository_owner != 'git' && github.repository_owner != 'gitster' &&
+    startsWith(github.ref, 'refs/heads/wip-')
+    )
+    }}
+
+
+
 jobs:
   windows-build:
+    if: *should_run
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
