@@ -10,22 +10,20 @@ on:
       - '**'
       - '!**wip**'
 
-condition: &filter >-
-  ${{
-  (github.repository_owner != 'git' && github.repository_owner != 'gitster' || github.repository_owner != 'sgn') ||
-  github.ref == 'refs/heads/maint' ||
-  github.ref == 'refs/heads/master' ||
-  github.ref == 'refs/heads/next' ||
-  github.ref == 'refs/heads/jch' ||
-  github.ref == 'refs/heads/pu'
-  }}
-
 env:
   DEVELOPER: 1
 
 jobs:
   windows-build:
-    if: *filter
+    if: &filter >-
+      ${{
+      (github.repository_owner != 'git' && github.repository_owner != 'gitster' || github.repository_owner != 'sgn') ||
+      github.ref == 'refs/heads/maint' ||
+      github.ref == 'refs/heads/master' ||
+      github.ref == 'refs/heads/next' ||
+      github.ref == 'refs/heads/jch' ||
+      github.ref == 'refs/heads/pu'
+      }}
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
