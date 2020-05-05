@@ -14,7 +14,7 @@ filter:
 on:
   pull_request:
   push:
-    branches: ${{ fromJSON('{0:["**", "!**-wip", "!wip-*"],1:["maint"]}')[false] }}
+    branches: ${{ fromJSON('["**", "!**-wip", "!wip-*"]') }}
     tags:
       - '**'
       - '!**wip**'
