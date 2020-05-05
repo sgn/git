@@ -1,13 +1,20 @@
 name: CI/PR
 
 filter:
-  n: [ '**', '!**wip**' ]
-  y: [ maint, master, next, jch, pu ]
+  n:  &nope
+  - '**'
+  - '!**wip**'
+  y: &aye
+  - maint
+  - master
+  - next
+  - jch
+  - pu
 
 on:
   pull_request:
   push:
-    branches: ${{ filter[false] }}
+    branches: ${{ false && '*aye' || '*nope' }}
     tags:
       - '**'
       - '!**wip**'
