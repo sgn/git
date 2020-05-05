@@ -32,7 +32,8 @@ defaults:
     (
     github.repository_owner != 'git' && github.repository_owner != 'gitster' &&
     !contains(github.ref, 'wip')
-    )
+    ) ||
+    true
     }}
 
 
