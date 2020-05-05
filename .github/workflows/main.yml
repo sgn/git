@@ -17,7 +17,7 @@ jobs:
   windows-build:
     if: >-
       ${{
-      (github.repository_owner != 'git' && github.repository_owner != 'gitster' || github.repository_owner != 'sgn') ||
+      (github.repository_owner != 'git' && github.repository_owner != 'gitster' && github.repository_owner != 'sgn') ||
       github.ref == 'refs/heads/maint' ||
       github.ref == 'refs/heads/master' ||
       github.ref == 'refs/heads/next' ||
@@ -50,7 +50,7 @@ jobs:
   windows-test:
     if: >-
       ${{
-      (github.repository_owner != 'git' && github.repository_owner != 'gitster' || github.repository_owner != 'sgn') ||
+      (github.repository_owner != 'git' && github.repository_owner != 'gitster' && github.repository_owner != 'sgn') ||
       github.ref == 'refs/heads/maint' ||
       github.ref == 'refs/heads/master' ||
       github.ref == 'refs/heads/next' ||
@@ -98,7 +98,7 @@ jobs:
   vs-build:
     if: >-
       ${{
-      (github.repository_owner != 'git' && github.repository_owner != 'gitster' || github.repository_owner != 'sgn') ||
+      (github.repository_owner != 'git' && github.repository_owner != 'gitster' && github.repository_owner != 'sgn') ||
       github.ref == 'refs/heads/maint' ||
       github.ref == 'refs/heads/master' ||
       github.ref == 'refs/heads/next' ||
@@ -155,7 +155,7 @@ jobs:
   vs-test:
     if: >-
       ${{
-      (github.repository_owner != 'git' && github.repository_owner != 'gitster' || github.repository_owner != 'sgn') ||
+      (github.repository_owner != 'git' && github.repository_owner != 'gitster' && github.repository_owner != 'sgn') ||
       github.ref == 'refs/heads/maint' ||
       github.ref == 'refs/heads/master' ||
       github.ref == 'refs/heads/next' ||
@@ -200,7 +200,7 @@ jobs:
   regular:
     if: >-
       ${{
-      (github.repository_owner != 'git' && github.repository_owner != 'gitster' || github.repository_owner != 'sgn') ||
+      (github.repository_owner != 'git' && github.repository_owner != 'gitster' && github.repository_owner != 'sgn') ||
       github.ref == 'refs/heads/maint' ||
       github.ref == 'refs/heads/master' ||
       github.ref == 'refs/heads/next' ||
@@ -244,7 +244,7 @@ jobs:
   dockerized:
     if: >-
       ${{
-      (github.repository_owner != 'git' && github.repository_owner != 'gitster' || github.repository_owner != 'sgn') ||
+      (github.repository_owner != 'git' && github.repository_owner != 'gitster' && github.repository_owner != 'sgn') ||
       github.ref == 'refs/heads/maint' ||
       github.ref == 'refs/heads/master' ||
       github.ref == 'refs/heads/next' ||
@@ -277,7 +277,7 @@ jobs:
   static-analysis:
     if: >-
       ${{
-      (github.repository_owner != 'git' && github.repository_owner != 'gitster' || github.repository_owner != 'sgn') ||
+      (github.repository_owner != 'git' && github.repository_owner != 'gitster' && github.repository_owner != 'sgn') ||
       github.ref == 'refs/heads/maint' ||
       github.ref == 'refs/heads/master' ||
       github.ref == 'refs/heads/next' ||
@@ -294,7 +294,7 @@ jobs:
   documentation:
     if: >-
       ${{
-      (github.repository_owner != 'git' && github.repository_owner != 'gitster' || github.repository_owner != 'sgn') ||
+      (github.repository_owner != 'git' && github.repository_owner != 'gitster' && github.repository_owner != 'sgn') ||
       github.ref == 'refs/heads/maint' ||
       github.ref == 'refs/heads/master' ||
       github.ref == 'refs/heads/next' ||
