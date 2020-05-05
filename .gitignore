@@ -240,3 +240,4 @@ Release/
 /git.VC.VC.opendb
 /git.VC.db
 *.dSYM
+Meta/
