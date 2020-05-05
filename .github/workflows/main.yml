@@ -10,14 +10,22 @@ on:
       - '**'
       - '!**wip**'
 
+condition: &filter >-
+  ${{
+  (github.repository_owner != 'git' && github.repository_owner != 'gitster' || github.repository_owner != 'sgn') ||
+  github.ref == 'refs/heads/maint' ||
+  github.ref == 'refs/heads/master' ||
+  github.ref == 'refs/heads/next' ||
+  github.ref == 'refs/heads/jch' ||
+  github.ref == 'refs/heads/pu'
+  }}
+
 env:
   DEVELOPER: 1
 
 jobs:
   windows-build:
-    if: >-
-      ${{ (github.repository_owner != 'git' && github.repository_owner != 'gitster') ||
-      github.ref == 'refs/heads/maint' || github.ref == 'refs/heads/master' }}
+    if: *filter
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
@@ -42,9 +50,7 @@ jobs:
         name: windows-artifacts
         path: artifacts
   windows-test:
-    if: >-
-      ${{ (github.repository_owner != 'git' && github.repository_owner != 'gitster') ||
-      github.ref == 'refs/heads/maint' || github.ref == 'refs/heads/master' }}
+    if: *filter
     runs-on: windows-latest
     needs: [windows-build]
     strategy:
@@ -84,9 +90,7 @@ jobs:
         name: failed-tests-windows
         path: ${{env.FAILED_TEST_ARTIFACTS}}
   vs-build:
-    if: >-
-      ${{ (github.repository_owner != 'git' && github.repository_owner != 'gitster') ||
-      github.ref == 'refs/heads/maint' || github.ref == 'refs/heads/master' }}
+    if: *filter
     env:
       MSYSTEM: MINGW64
       NO_PERL: 1
@@ -135,9 +139,7 @@ jobs:
         name: vs-artifacts
         path: artifacts
   vs-test:
-    if: >-
-      ${{ (github.repository_owner != 'git' && github.repository_owner != 'gitster') ||
-      github.ref == 'refs/heads/maint' || github.ref == 'refs/heads/master' }}
+    if: *filter
     runs-on: windows-latest
     needs: [vs-build]
     strategy:
@@ -174,9 +176,7 @@ jobs:
                           ${{matrix.nr}} 10 t[0-9]*.sh)
         "@
   regular:
-    if: >-
-      ${{ (github.repository_owner != 'git' && github.repository_owner != 'gitster') ||
-      github.ref == 'refs/heads/maint' || github.ref == 'refs/heads/master' }}
+    if: *filter
     strategy:
       matrix:
         vector:
@@ -212,9 +212,7 @@ jobs:
         name: failed-tests-${{matrix.vector.jobname}}
         path: ${{env.FAILED_TEST_ARTIFACTS}}
   dockerized:
-    if: >-
-      ${{ (github.repository_owner != 'git' && github.repository_owner != 'gitster') ||
-      github.ref == 'refs/heads/maint' || github.ref == 'refs/heads/master' }}
+    if: *filter
     strategy:
       matrix:
         vector:
@@ -239,9 +237,7 @@ jobs:
         name: failed-tests-${{matrix.vector.jobname}}
         path: ${{env.FAILED_TEST_ARTIFACTS}}
   static-analysis:
-    if: >-
-      ${{ (github.repository_owner != 'git' && github.repository_owner != 'gitster') ||
-      github.ref == 'refs/heads/maint' || github.ref == 'refs/heads/master' }}
+    if: *filter
     env:
       jobname: StaticAnalysis
     runs-on: ubuntu-latest
@@ -250,9 +246,7 @@ jobs:
     - run: ci/install-dependencies.sh
     - run: ci/run-static-analysis.sh
   documentation:
-    if: >-
-      ${{ (github.repository_owner != 'git' && github.repository_owner != 'gitster') ||
-      github.ref == 'refs/heads/maint' || github.ref == 'refs/heads/master' }}
+    if: *filter
     env:
       jobname: Documentation
     runs-on: ubuntu-latest
