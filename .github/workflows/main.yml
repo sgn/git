@@ -13,16 +13,12 @@ on:
 env:
   DEVELOPER: 1
 
-defaults:
-  should_run: &should_run >-
-    ${{ (github.repository_owner != 'git' && github.repository_owner != 'gitster') ||
-    github.ref == 'refs/heads/maint' || github.ref == 'refs/heads/master' }}
-
-
-
 jobs:
   windows-build:
-    if: *should_run
+    if: >-
+      ${{ (github.repository_owner != 'git' && github.repository_owner != 'gitster') ||
+      github.ref == 'refs/heads/maint' || github.ref == 'refs/heads/master' }}
+
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
