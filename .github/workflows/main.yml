@@ -19,8 +19,7 @@ jobs:
           name: check whether CI is enabled for ref
           run: |
             enabled=yes
-            if test -e ref-whitelist &&
-               ! grep '^${{ github.ref }}$' ref-whitelist
+            if test -x allow-ref && ! ./allow-ref '${{ github.ref }}'
             then
               enabled=no
             fi

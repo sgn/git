@@ -1,0 +1,12 @@
+#!/bin/sh
+# Sample filter for GitHub Actions
+# GitHub Actions will run if and only if this script exits with zero status
+
+# This sample filter will ask GitHub Actions to build
+# any branches whose name doesn't start with "no-ci"
+
+REFNAME="$1"
+
+case "$REFNAME" in
+refs/heads/no-ci*) exit 1 ;;
+esac
