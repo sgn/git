@@ -11,6 +11,7 @@ on:
       - pu
       - 'for-ci**'
     tags:
+      - '**'
       - '!**wip**'
 
 env:
