@@ -31,7 +31,7 @@ defaults:
     ) ||
     (
     github.repository_owner != 'git' && github.repository_owner != 'gitster' &&
-    startsWith(github.ref, 'refs/heads/wip-')
+    !contains(github.ref, 'wip')
     )
     }}
 
