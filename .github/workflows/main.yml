@@ -9,10 +9,10 @@ on:
       - next
       - jch
       - pu
-      - 'for-ci**'
+      - for-ci**
     tags:
       - '**'
-      - '!**wip**'
+      - '!**wip'
 
 env:
   DEVELOPER: 1
