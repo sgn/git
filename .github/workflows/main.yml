@@ -1,8 +1,8 @@
 name: CI/PR
 
 filter:
-  false: [ '**', '!**wip**' ]
-  true: [ maint, master, next, jch, pu ]
+  n: [ '**', '!**wip**' ]
+  y: [ maint, master, next, jch, pu ]
 
 on:
   pull_request:
