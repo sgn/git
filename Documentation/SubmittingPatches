@@ -79,8 +79,8 @@ test your changes on Linux, Mac (and hopefully soon Windows).  See
 GitHub-Travis CI hints section for details.
 
 Alternately, you can use GitHub Actions (which supports testing your changes
-on Linux, macOS, and Windows) by pushing into a branch in your fork
-or opening a GitHub Pull Request against
+on Linux, macOS, and Windows) by pushing into a branch in your fork whose name
+doesn't start with `wip/`, or opening a GitHub Pull Request against
 https://github.com/git/git.git or a fork of that repository.
 In the event that you only want to trigger GitHub Actions for specific
 refname, you can create an executable file named `allow-ref` in

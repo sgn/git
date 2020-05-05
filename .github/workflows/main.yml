@@ -1,6 +1,13 @@
 name: CI/PR
 
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    branches:
+      - '**'
+      - '!wip/**'
+    tags:
+      - 'v[0-9]*'
 
 env:
   DEVELOPER: 1
