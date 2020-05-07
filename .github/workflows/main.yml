@@ -18,20 +18,28 @@ jobs:
       outputs:
         enabled: ${{ steps.check-ref.outputs.enabled }}
       steps:
-        - uses: actions/checkout@v2
-          continue-on-error: true
-          with:
-            ref: refs/ci/config
-        - id: check-ref
-          name: check whether CI is enabled for ref
-          run: |
-            enabled=yes
-            if test -x allow-ref && ! ./allow-ref '${{ github.ref }}'
-            then
-              enabled=no
-            fi
-            echo "::set-output name=enabled::$enabled"
+      - id: check-ref
+        name: check whether CI is enabled for ref
+        uses: actions/github-script@0.9.0
+        with:
+          script: |
+            const req = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: "ci/config"
+            };
 
+            try {
+              req.tree_sha = (await github.git.getRef(req)).data.object.sha;
+              (await github.git.getTree(req))
+              .tree.filter(e => e.path == 'ref-whitelist').map(e => {
+                req.file_sha = e.sha;
+              });
+              const list = Buffer.from((await github.git.getBlob(req)).data.content, 'base64').toString('UTF-8');
+              core.setOutput('enabled', `\n${list}`.indexOf(`\n${{github.ref}}\n`) < 0 ? 'no' : 'yes');
+            } catch (e) {
+              core.setOutput('enabled', 'yes');
+            }
   windows-build:
     needs: check-ci
     if: needs.check-ci.outputs.enabled == 'yes'
