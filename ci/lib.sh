@@ -113,6 +113,7 @@ then
 	export GIT_PROVE_OPTS="--timer --jobs 3 --state=failed,slow,save"
 	export GIT_TEST_OPTS="--verbose-log -x --immediate"
 	MAKEFLAGS="$MAKEFLAGS --jobs=2"
+	t1509_allowed=YES
 elif test -n "$SYSTEM_COLLECTIONURI" || test -n "$SYSTEM_TASKDEFINITIONSURI"
 then
 	CI_TYPE=azure-pipelines
@@ -162,6 +163,7 @@ then
 	echo "::add-matcher::ci/git-problem-matcher.json"
 	test linux-musl = "$jobname" ||
 	MAKEFLAGS="$MAKEFLAGS TEST_SHELL_PATH=/bin/sh"
+	t1509_allowed=YES
 else
 	echo "Could not identify CI type" >&2
 	env >&2
@@ -183,6 +185,17 @@ fi
 export DEVELOPER=1
 export DEFAULT_TEST_TARGET=prove
 export GIT_TEST_CLONE_2GB=true
+
+if test "$t1509_allowed" = YES
+then
+	case "$jobname" in
+	osx-*) ;;
+	*)
+		sudo chmod a+w /
+		export IKNOWWHATIAMDOING=YES
+		;;
+	esac
+fi
 
 case "$jobname" in
 linux-clang|linux-gcc)

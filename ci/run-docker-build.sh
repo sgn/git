@@ -58,6 +58,8 @@ else
 	test -n "$cache_dir" && chown -R $HOST_UID:$HOST_UID "$cache_dir"
 fi
 
+chmod a+w /
+
 # Build and test
 command $switch_cmd su -m -l $CI_USER -c "
 	set -ex
@@ -68,6 +70,7 @@ command $switch_cmd su -m -l $CI_USER -c "
 	export GIT_TEST_CLONE_2GB='$GIT_TEST_CLONE_2GB'
 	export MAKEFLAGS='$MAKEFLAGS'
 	export cache_dir='$cache_dir'
+	export IKNOWWHATIAMDOING=YES
 	cd /usr/src/git
 	test -n '$cache_dir' && ln -s '$cache_dir/.prove' t/.prove
 	make
