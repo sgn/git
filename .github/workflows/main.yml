@@ -13,17 +13,12 @@ jobs:
     - name: download git-sdk-64-minimal
       shell: bash
       run: |
-        ## Add `json_pp` to the search path
-        PATH=$PATH:/usr/bin/core_perl
-
         ## Get artifact
         urlbase=https://dev.azure.com/git-for-windows/git/_apis/build/builds
         id=$(curl "$urlbase?definitions=22&statusFilter=completed&resultFilter=succeeded&\$top=1" |
-          json_pp |
-          sed -n 's/^         "id" : \([1-9][0-9]*\).*/\1/p')
+          jq -r ".value[] | .id")
         download_url="$(curl "$urlbase/$id/artifacts" |
-          json_pp |
-          sed -n '/^      {/{:1;N;/\n      }/b2;b1;:2;/"name" : "git-sdk-64-minimal"/{s/.*"downloadUrl" : "\([^\"]*\).*/\1/p}}')"
+          jq -r '.value[] | select(.name == "git-sdk-64-minimal").resource.downloadUrl')"
         curl --connect-timeout 10 --retry 5 --retry-delay 0 --retry-max-time 240 \
           -o artifacts.zip "$download_url"
 
@@ -104,17 +99,12 @@ jobs:
     - name: download git-sdk-64-minimal
       shell: bash
       run: |
-        ## Add `json_pp` to the search path
-        PATH=$PATH:/usr/bin/core_perl
-
         ## Get artifact
         urlbase=https://dev.azure.com/git-for-windows/git/_apis/build/builds
         id=$(curl "$urlbase?definitions=22&statusFilter=completed&resultFilter=succeeded&\$top=1" |
-          json_pp |
-          sed -n 's/^         "id" : \([1-9][0-9]*\).*/\1/p')
+          jq -r ".value[] | .id")
         download_url="$(curl "$urlbase/$id/artifacts" |
-          json_pp |
-          sed -n '/^      {/{:1;N;/\n      }/b2;b1;:2;/"name" : "git-sdk-64-minimal"/{s/.*"downloadUrl" : "\([^\"]*\).*/\1/p}}')"
+          jq -r '.value[] | select(.name == "git-sdk-64-minimal").resource.downloadUrl')"
         curl --connect-timeout 10 --retry 5 --retry-delay 0 --retry-max-time 240 \
           -o artifacts.zip "$download_url"
 
