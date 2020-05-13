@@ -191,7 +191,7 @@ then
 	case "$jobname" in
 	osx-*) ;;
 	*)
-		sudo chmod a+w /
+		chmod a+w / || sudo chmod a+w / || true
 		export IKNOWWHATIAMDOING=YES
 		;;
 	esac
