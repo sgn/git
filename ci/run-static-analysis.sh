@@ -29,7 +29,9 @@ fi
 make hdr-check ||
 exit 1
 
-( make sparse 3>&2 2>&1 >&3 ) |
+GCC_BASE_DIR=$(gcc -v 2>&1 | sed -n 's,^COLLECT_LTO_WRAPPER=\(.*\)/lto-wrapper$,\1,p')
+SPARSE_FLAGS="-gcc-base-dir $GCC_BASE_DIR -multiarch-dir x86_64-linux-gnu"
+( make SPARSE_FLAGS="$SPARSE_FLAGS" sparse 3>&2 2>&1 >&3) |
 grep -v -e '^GIT_VERSION =' -e '^    [*] new [a-z]* flags$' &&
 exit 1
 
