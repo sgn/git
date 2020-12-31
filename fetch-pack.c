@@ -23,6 +23,9 @@
 #include "fetch-negotiator.h"
 #include "fsck.h"
 #include "shallow.h"
+#include "bloom.h"
+#include "list-objects.h"
+#include "revision.h"
 
 static int transfer_unpack_limit = -1;
 static int fetch_unpack_limit = -1;
@@ -1184,6 +1187,71 @@ static int add_haves(struct fetch_negotiator *negotiator,
 	return ret;
 }
 
+static int rev_info_insert_ref_oid(const char *refname,
+				   const struct object_id *oid,
+				   int flag, void *cbdata)
+{
+	struct rev_info *rev_info = cbdata;
+	add_pending_oid(rev_info, refname, oid, 0);
+	return 1;
+}
+
+static void rev_info_insert_to_oidset(struct commit *commit, void *cbdata)
+{
+	struct oidset *set = cbdata;
+	oidset_insert(set, &commit->object.oid);
+}
+
+static void add_bloom(struct strbuf *req_buf, struct oidset *common)
+{
+	struct oidset_iter iter;
+	struct oidset haves = OIDSET_INIT;
+	struct rev_info rev_info;
+	struct bloom_filter filter;
+	struct bloom_filter_settings settings = DEFAULT_BLOOM_FILTER_SETTINGS;
+	struct strbuf buf;
+	const struct object_id *oid;
+	int i;
+
+	if (oidset_size(common) == 0)
+		return;
+	
+	repo_init_revisions(the_repository, &rev_info, NULL);
+
+	oidset_iter_init(common, &iter);
+	while ((oid = oidset_iter_next(&iter))) {
+		add_pending_oid(&rev_info, oid_to_hex(oid), oid,
+			       UNINTERESTING | BOTTOM);
+	}
+
+	for_each_rawref(rev_info_insert_ref_oid, &rev_info);
+	if (prepare_revision_walk(&rev_info)) {
+		warning("couldn't prepare revision walk for fetch");
+		return;
+	}
+	traverse_commit_list(&rev_info, rev_info_insert_to_oidset, NULL, &haves);
+	if (oidset_size(&haves) == 0)
+		return;
+	filter.len = (oidset_size(&haves) * settings.bits_per_entry + BITS_PER_WORD - 1)
+		/ BITS_PER_WORD;
+	free(filter.data);
+	filter.data = xcalloc(filter.len, sizeof(unsigned char));
+	oidset_iter_init(&haves, &iter);
+	while ((oid = oidset_iter_next(&iter))) {
+		struct bloom_key key;
+		fill_bloom_key((const char *)oid->hash, the_hash_algo->rawsz,
+			       &key, &settings);
+		add_key_to_filter(&key, &filter, &settings);
+	}
+
+	strbuf_init(&buf, filter.len * 2 + strlen("bloom \n"));
+	strbuf_addstr(&buf, "bloom ");
+	for (i = 0; i < filter.len; i++)
+		strbuf_addf(&buf, "%02x", filter.data[i]);
+	strbuf_addch(&buf, '\n');
+	packet_buf_write_len(req_buf, buf.buf, buf.len);
+}
+
 static int send_fetch_request(struct fetch_negotiator *negotiator, int fd_out,
 			      struct fetch_pack_args *args,
 			      const struct ref *wants, struct oidset *common,
@@ -1191,6 +1259,7 @@ static int send_fetch_request(struct fetch_negotiator *negotiator, int fd_out,
 			      int sideband_all, int seen_ack)
 {
 	int ret = 0;
+	int transferbloom = 0;
 	const char *hash_name;
 	struct strbuf req_buf = STRBUF_INIT;
 
@@ -1278,6 +1347,11 @@ static int send_fetch_request(struct fetch_negotiator *negotiator, int fd_out,
 	ret = add_haves(negotiator, seen_ack, &req_buf,
 			haves_to_send, in_vain);
 
+	/* Add bloom filter represent commits we have from known common */
+	git_config_get_maybe_bool("transfer.bloom", &transferbloom);
+	if (transferbloom && server_supports_v2("bloom", 0))
+		add_bloom(&req_buf, common);
+
 	/* Send request */
 	packet_buf_flush(&req_buf);
 	if (write_in_full(fd_out, req_buf.buf, req_buf.len) < 0)
@@ -1352,11 +1426,14 @@ static enum common_found process_acks(struct fetch_negotiator *negotiator,
 			struct object_id oid;
 			received_ack = 1;
 			if (!get_oid_hex(arg, &oid)) {
+				struct object *obj;
 				struct commit *commit;
-				oidset_insert(common, &oid);
-				commit = lookup_commit(the_repository, &oid);
-				if (negotiator)
-					negotiator->ack(negotiator, commit);
+				obj = lookup_object(the_repository, &oid);
+				if (obj && (commit = object_as_type(obj, OBJ_COMMIT, 0))) {
+					oidset_insert(common, &oid);
+					if (negotiator)
+						negotiator->ack(negotiator, commit);
+				}
 			}
 			continue;
 		}
