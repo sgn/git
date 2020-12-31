@@ -67,6 +67,17 @@ test_expect_success 'compute bloom key for test string 2' '
 	test_cmp expect actual
 '
 
+test_expect_success 'compute bloom key for multiple string' '
+	cat >expect <<-\EOF &&
+	Hashes:0xb270de9b|0x1bb6f26e|0x84fd0641|0xee431a14|0x57892de7|0xc0cf41ba|0x2a15558d|
+	Hashes:0x20ab385b|0xf5237fe2|0xc99bc769|0x9e140ef0|0x728c5677|0x47049dfe|0x1b7ce585|
+	Filter_Length:3
+	Filter_Data:45|ba|ac|
+	EOF
+	test-tool bloom generate_filter "Hello world!" file.txt >actual &&
+	test_cmp expect actual
+'
+
 test_expect_success 'get bloom filters for commit with no changes' '
 	git init &&
 	git commit --allow-empty -m "c0" &&

@@ -68,11 +68,13 @@ int cmd__bloom(int argc, const char **argv)
 	if (!strcmp(argv[1], "generate_filter")) {
 		struct bloom_filter filter;
 		int i = 2;
-		filter.len =  (settings.bits_per_entry + BITS_PER_WORD - 1) / BITS_PER_WORD;
-		filter.data = xcalloc(filter.len, sizeof(unsigned char));
 
 		if (argc - 1 < i)
 			usage(bloom_usage);
+
+		filter.len = (settings.bits_per_entry * (argc - 2) + BITS_PER_WORD - 1)
+			/ BITS_PER_WORD;
+		filter.data = xcalloc(filter.len, sizeof(unsigned char));
 
 		while (argv[i]) {
 			add_string_to_filter(argv[i], &filter);
