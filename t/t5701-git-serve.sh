@@ -16,6 +16,7 @@ test_expect_success 'test capability advertisement' '
 	fetch=shallow
 	server-option
 	object-format=$(test_oid algo)
+	bloom
 	0000
 	EOF
 

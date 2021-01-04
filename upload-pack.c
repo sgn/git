@@ -27,6 +27,7 @@
 #include "commit-graph.h"
 #include "commit-reach.h"
 #include "shallow.h"
+#include "bloom.h"
 
 /* Remember to update object flag allocation in object.h */
 #define THEY_HAVE	(1u << 11)
@@ -62,6 +63,8 @@ struct upload_pack_data {
 	struct object_array have_obj;
 	struct oid_array haves;					/* v2 only */
 	struct string_list wanted_refs;				/* v2 only */
+	struct bloom_filter bloom_filter;			/* v2 only */
+	struct bloom_filter_settings bloom_filter_settings;
 
 	struct object_array shallows;
 	struct string_list deepen_not;
@@ -113,6 +116,13 @@ struct upload_pack_data {
 	unsigned advertise_sid : 1;
 };
 
+struct upload_pack_bloom_args
+{
+	struct bloom_filter *bloom_filter;
+	struct bloom_filter_settings *bloom_filter_settings;
+	struct oid_array *acks;
+};
+
 static void upload_pack_data_init(struct upload_pack_data *data)
 {
 	struct string_list symref = STRING_LIST_INIT_DUP;
@@ -125,6 +135,7 @@ static void upload_pack_data_init(struct upload_pack_data *data)
 	struct string_list uri_protocols = STRING_LIST_INIT_DUP;
 	struct object_array extra_edge_obj = OBJECT_ARRAY_INIT;
 	struct string_list allowed_filters = STRING_LIST_INIT_DUP;
+	struct bloom_filter_settings bloom_filter_settings = DEFAULT_BLOOM_FILTER_SETTINGS;
 
 	memset(data, 0, sizeof(*data));
 	data->symref = symref;
@@ -132,6 +143,7 @@ static void upload_pack_data_init(struct upload_pack_data *data)
 	data->want_obj = want_obj;
 	data->have_obj = have_obj;
 	data->haves = haves;
+	data->bloom_filter_settings = bloom_filter_settings;
 	data->shallows = shallows;
 	data->deepen_not = deepen_not;
 	data->uri_protocols = uri_protocols;
@@ -1464,6 +1476,34 @@ static int parse_have(const char *line, struct oid_array *haves)
 	return 0;
 }
 
+static int parse_bloom(const char *line, struct bloom_filter *filter,
+		       struct bloom_filter_settings *settings)
+{
+	const char *arg;
+	unsigned char *p;
+	size_t len;
+	if (!skip_prefix(line, "bloom ", &arg))
+		return 0;
+
+	len = strlen(arg);
+	if (len % 2)
+		die("git upload-pack: corrupted bloom data with len: %zu", len);
+	filter->len = len / 2;
+	filter->data = p = xmalloc(filter->len);
+	while (*arg) {
+		int val = hex2chr(arg);
+		if (val < 0)
+			goto errout;
+		*p++ = val;
+		arg += 2;
+	}
+	return 1;
+errout:
+	filter->len = 0;
+	FREE_AND_NULL(filter->data);
+	return 0;
+}
+
 static void process_args(struct packet_reader *request,
 			 struct upload_pack_data *data)
 {
@@ -1480,6 +1520,9 @@ static void process_args(struct packet_reader *request,
 			continue;
 		/* process have line */
 		if (parse_have(arg, &data->haves))
+			continue;
+
+		if (parse_bloom(arg, &data->bloom_filter, &data->bloom_filter_settings))
 			continue;
 
 		/* process args like thin-pack */
@@ -1570,6 +1613,48 @@ static int process_haves(struct upload_pack_data *data, struct oid_array *common
 	return 0;
 }
 
+static void rev_info_bloom_ack(struct commit *commit, void *cbdata)
+{
+	struct upload_pack_bloom_args *args = cbdata;
+	struct bloom_key key;
+	struct object_id *oid = &commit->object.oid;
+	fill_bloom_key((const char *)oid->hash, the_hash_algo->rawsz,
+		       &key, args->bloom_filter_settings);
+	if (bloom_filter_contains(args->bloom_filter, &key,
+				  args->bloom_filter_settings))
+		oid_array_append(args->acks, oid);
+}
+
+/* Walking from wanted_obj until haves, add all MAYBE objects to acks */
+static int process_bloom(struct upload_pack_data *data, struct oid_array *acks)
+{
+	struct upload_pack_bloom_args args;
+	struct rev_info rev_info;
+	const struct object_id *oid;
+	int i;
+
+	/* unknown bloom data and/or no known common objects */
+	if (!data->bloom_filter.len || !acks->nr)
+		return 0;
+	repo_init_revisions(the_repository, &rev_info, NULL);
+	for (i = 0; i < acks->nr; i++) {
+		oid = &acks->oid[i];
+		add_pending_oid(&rev_info, oid_to_hex(oid), oid,
+				UNINTERESTING | BOTTOM);
+	}
+	for (i = 0; i < data->want_obj.nr; i++) {
+		oid = &data->want_obj.objects[i].item->oid;
+		add_pending_oid(&rev_info, oid_to_hex(oid), oid, 0);
+	}
+	if (prepare_revision_walk(&rev_info))
+		return 0;
+	args.bloom_filter = &data->bloom_filter;
+	args.bloom_filter_settings = &data->bloom_filter_settings;
+	args.acks = acks;
+	traverse_commit_list(&rev_info, rev_info_bloom_ack, NULL, &args);
+	return 0;
+}
+
 static int send_acks(struct upload_pack_data *data, struct oid_array *acks)
 {
 	int i;
@@ -1600,6 +1685,7 @@ static int process_haves_and_send_acks(struct upload_pack_data *data)
 	int ret = 0;
 
 	process_haves(data, &common);
+	process_bloom(data, &common);
 	if (data->done) {
 		ret = 1;
 	} else if (send_acks(data, &common)) {

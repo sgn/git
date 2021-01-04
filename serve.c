@@ -78,6 +78,7 @@ static struct protocol_capability capabilities[] = {
 	{ "server-option", always_advertise, NULL },
 	{ "object-format", object_format_advertise, NULL },
 	{ "session-id", session_id_advertise, NULL },
+	{ "bloom", always_advertise, NULL },
 };
 
 static void advertise_capabilities(void)
