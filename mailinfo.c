@@ -988,16 +988,27 @@ again:
 }
 
 static void handle_filter_flowed(struct mailinfo *mi, struct strbuf *line,
-				 struct strbuf *prev)
+				 struct strbuf *prev, int *keep_cr)
 {
 	size_t len = line->len;
 	const char *rest;
 
 	if (!mi->format_flowed) {
+		if (*keep_cr == -1 && len >= 2)
+			*keep_cr = !(line->buf[len - 2] == '\r' &&
+				     line->buf[len - 1] == '\n');
+		if (!*keep_cr && len >= 2 &&
+		    line->buf[len - 2] == '\r' &&
+		    line->buf[len - 1] == '\n') {
+			strbuf_setlen(line, len - 2);
+			strbuf_addch(line, '\n');
+			len--;
+		}
 		handle_filter(mi, line);
 		return;
 	}
 
+	*keep_cr = 1;
 	if (line->buf[len - 1] == '\n') {
 		len--;
 		if (len && line->buf[len - 1] == '\r')
@@ -1036,6 +1047,7 @@ static void handle_filter_flowed(struct mailinfo *mi, struct strbuf *line,
 static void handle_body(struct mailinfo *mi, struct strbuf *line)
 {
 	struct strbuf prev = STRBUF_INIT;
+	int keep_cr = -1;
 
 	/* Skip up to the first boundary */
 	if (*(mi->content_top)) {
@@ -1081,7 +1093,7 @@ static void handle_body(struct mailinfo *mi, struct strbuf *line)
 						strbuf_addbuf(&prev, sb);
 						break;
 					}
-				handle_filter_flowed(mi, sb, &prev);
+				handle_filter_flowed(mi, sb, &prev, &keep_cr);
 			}
 			/*
 			 * The partial chunk is saved in "prev" and will be
@@ -1091,7 +1103,9 @@ static void handle_body(struct mailinfo *mi, struct strbuf *line)
 			break;
 		}
 		default:
-			handle_filter_flowed(mi, line, &prev);
+			/* CR in plain message was processed in mailsplit */
+			keep_cr = 1;
+			handle_filter_flowed(mi, line, &prev, &keep_cr);
 		}
 
 		if (mi->input_error)

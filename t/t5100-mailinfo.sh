@@ -228,4 +228,9 @@ test_expect_success 'mailinfo handles unusual header whitespace' '
 	test_cmp expect actual
 '
 
+test_expect_success 'mailinfo strip CR after decode base64' '
+	cp $DATA/cr-base64.mbox 1000 &&
+	check_mailinfo 1000 ""
+'
+
 test_done
