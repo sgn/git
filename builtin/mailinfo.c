@@ -70,7 +70,7 @@ int cmd_mailinfo(int argc, const char **argv, const char *prefix)
 			       N_("re-code metadata to this encoding"),
 			       PARSE_OPT_NONEG, parse_opt_explicit_encoding),
 		OPT_BOOL(0, "scissors", &mi.use_scissors, N_("use scissors")),
-		OPT_CALLBACK_F(0, "quoted-cr", &mi.quoted_cr, "[nowarn|warn]",
+		OPT_CALLBACK_F(0, "quoted-cr", &mi.quoted_cr, "[nowarn|warn|strip]",
 			       N_("action when quoted CR is found"),
 			       PARSE_OPT_NONEG, parse_opt_quoted_cr),
 		OPT_HIDDEN_BOOL(0, "inbody-headers", &mi.use_inbody_headers,
