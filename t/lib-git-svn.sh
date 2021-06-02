@@ -121,12 +121,24 @@ start_svnserve () {
 		 --listen-host 127.0.0.1 &
 }
 
-prepare_a_utf8_locale () {
-	a_utf8_locale=$(locale -a | sed -n '/\.[uU][tT][fF]-*8$/{
-	p
-	q
-}')
-	if test -n "$a_utf8_locale"
+prepare_utf8_locale () {
+	if test -n "$GIT_TEST_UTF8_LOCALE"
+	then
+		: test_set_prereq UTF8
+	elif test -n "${LC_ALL:-$LANG}"
+	then
+		case "${LC_ALL:-$LANG}" in
+		*.[Uu][Tt][Ff]8 | *.[Uu][Tt][Ff]-8)
+			GIT_TEST_UTF8_LOCALE="${LC_ALL:-$LANG}"
+			;;
+		esac
+	else
+		GIT_TEST_UTF8_LOCALE=$(locale -a | sed -n '/\.[uU][tT][fF]-*8$/{
+		p
+		q
+	}')
+	fi
+	if test -n "$GIT_TEST_UTF8_LOCALE"
 	then
 		test_set_prereq UTF8
 	else
