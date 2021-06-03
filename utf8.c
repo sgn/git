@@ -546,12 +546,13 @@ static const char *fallback_encoding(const char *name)
 
 char *reencode_string_len(const char *in, size_t insz,
 			  const char *out_encoding, const char *in_encoding,
-			  size_t *outsz)
+			  size_t *outsz_p)
 {
 	iconv_t conv;
 	char *out;
 	const char *bom_str = NULL;
 	size_t bom_len = 0;
+	size_t outsz = 0;
 
 	if (!in_encoding)
 		return NULL;
@@ -597,10 +598,16 @@ char *reencode_string_len(const char *in, size_t insz,
 		if (conv == (iconv_t) -1)
 			return NULL;
 	}
-	out = reencode_string_iconv(in, insz, conv, bom_len, outsz);
+	out = reencode_string_iconv(in, insz, conv, bom_len, &outsz);
 	iconv_close(conv);
 	if (out && bom_str && bom_len)
 		memcpy(out, bom_str, bom_len);
+	if (is_encoding_utf8(out_encoding) && has_utf8_bom(out, outsz)) {
+		outsz -= strlen(utf8_bom);
+		memmove(out, out + strlen(utf8_bom), outsz + 1);
+	}
+	if (outsz_p)
+		*outsz_p = outsz;
 	return out;
 }
 #endif
