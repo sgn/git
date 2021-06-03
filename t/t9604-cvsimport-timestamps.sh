@@ -9,10 +9,7 @@ test_expect_success PERL 'check timestamps are UTC (TZ=CST6CDT)' '
 
 	TZ=CST6CDT git cvsimport -p"-x" -C module-1 module &&
 	git cvsimport -p"-x" -C module-1 module &&
-	(
-		cd module-1 &&
-		git log --format="%s %ai"
-	) >actual-1 &&
+	git -C module-1 log --format="%s %ai" >actual-1 &&
 	cat >expect-1 <<-EOF &&
 	Rev 16 2006-10-29 07:00:01 +0000
 	Rev 15 2006-10-29 06:59:59 +0000
@@ -43,10 +40,7 @@ test_expect_success PERL 'check timestamps with author-specific timezones' '
 	user4=User Four <user4@domain.org> MST7MDT
 	EOF
 	git cvsimport -p"-x" -A cvs-authors -C module-2 module &&
-	(
-		cd module-2 &&
-		git log --format="%s %ai %an"
-	) >actual-2 &&
+	git -C module-2 log --format="%s %ai %an" >actual-2 &&
 	cat >expect-2 <<-EOF &&
 	Rev 16 2006-10-29 01:00:01 -0600 User Two
 	Rev 15 2006-10-29 01:59:59 -0500 User Two
