@@ -8,6 +8,7 @@ static const char utf16_be_bom[] = {'\xFE', '\xFF'};
 static const char utf16_le_bom[] = {'\xFF', '\xFE'};
 static const char utf32_be_bom[] = {'\0', '\0', '\xFE', '\xFF'};
 static const char utf32_le_bom[] = {'\xFF', '\xFE', '\0', '\0'};
+const char utf8_bom[] = "\357\273\277";
 
 struct interval {
 	ucs_char_t first;
@@ -26,6 +27,12 @@ size_t display_mode_esc_sequence_len(const char *s)
 	if (*p++ != 'm')
 		return 0;
 	return p - s;
+}
+
+static int has_utf8_bom(const char *text, size_t len)
+{
+	return len >= strlen(utf8_bom) &&
+		memcmp(text, utf8_bom, strlen(utf8_bom)) == 0;
 }
 
 /* auxiliary function for binary search in interval table */
@@ -782,12 +789,9 @@ int is_hfs_dotmailmap(const char *path)
 	return is_hfs_dot_str(path, "mailmap");
 }
 
-const char utf8_bom[] = "\357\273\277";
-
 int skip_utf8_bom(char **text, size_t len)
 {
-	if (len < strlen(utf8_bom) ||
-	    memcmp(*text, utf8_bom, strlen(utf8_bom)))
+	if (!has_utf8_bom(*text, len))
 		return 0;
 	*text += strlen(utf8_bom);
 	return 1;
